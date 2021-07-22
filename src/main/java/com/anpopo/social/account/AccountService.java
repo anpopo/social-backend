@@ -55,4 +55,9 @@ public class AccountService {
         accountRepository.save(newAccount);
         return newAccount;
     }
+
+    public void completeSignUp(Account findAccount) {
+        findAccount.completeSignUp();
+        // TODO login 하기
+    }
 }

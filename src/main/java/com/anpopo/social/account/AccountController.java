@@ -47,4 +47,27 @@ public class AccountController {
         return "redirect:/";
     }
 
+    @GetMapping("/check-email-token")
+    public String checkEmailToken(String token, String email, Model model) {
+        Account findAccount = accountRepository.findByEmail(email);
+
+        String view = "account/checked-email";
+
+        if ( findAccount == null) {
+            model.addAttribute("error", "wrong.email");
+            return view;
+        }
+
+        if ( !findAccount.isValidToken(token)) {
+            model.addAttribute("error", "wrong.token");
+            return view;
+        }
+
+
+        accountService.completeSignUp(findAccount);
+
+        model.addAttribute("numberOfUser", accountRepository.count());
+        model.addAttribute("nickname", findAccount.getNickname());
+        return view;
+    }
 }
