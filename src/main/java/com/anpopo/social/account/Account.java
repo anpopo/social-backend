@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter @Builder
 @EqualsAndHashCode(of = "id")
@@ -49,4 +50,7 @@ public class Account {
     // 관심 있는 주제로 포스팅이 올라온 경우 알람 설정
     private boolean favoriteSubjectPostingByWeb;
 
+    public void generateEmailCheckToken() {
+        this.emailCheckToken = UUID.randomUUID().toString();
+    }
 }
