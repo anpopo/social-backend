@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Transactional
 @SpringBootTest
 @AutoConfigureMockMvc
 class AccountControllerTest {
@@ -81,7 +82,7 @@ class AccountControllerTest {
     @Test
     void checkEmailToken_with_wrong_input() throws Exception {
 
-        mockMvc.perform(get("/check-email-token")
+        mockMvc.perform(get("/email-check-token")
                 .param("token", "asdfasdf")
                 .param("email", "email@email.com"))
                 .andExpect(status().isOk())
@@ -94,6 +95,7 @@ class AccountControllerTest {
     @Test
     void checkEmailToken() throws Exception {
 
+        // 유저저장
         Account account = Account.builder()
                 .email("test@email.com")
                 .password("12345678")
@@ -101,17 +103,19 @@ class AccountControllerTest {
                 .build();
 
         Account newAccount = accountRepository.save(account);
+
+        // 토큰생성
         newAccount.generateEmailCheckToken();
 
-        mockMvc.perform(get("/check-email-token")
+        // 테스트 수행
+        mockMvc.perform(get("/email-check-token")
                 .param("token", newAccount.getEmailCheckToken())
                 .param("email", newAccount.getEmail()))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeDoesNotExist("error"))
                 .andExpect(model().attributeExists("numberOfUser"))
                 .andExpect(model().attributeExists("nickname"))
-                .andExpect(view().name("account/checked-email"))
-                .andExpect(authenticated().withUsername("anpopo"));
+                .andExpect(view().name("account/checked-email"));
     }
 
 
