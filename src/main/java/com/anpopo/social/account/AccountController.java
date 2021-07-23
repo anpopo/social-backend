@@ -2,6 +2,7 @@ package com.anpopo.social.account;
 
 import com.anpopo.social.account.form.SignUpForm;
 import com.anpopo.social.account.validator.SignUpFormValidator;
+import com.anpopo.social.domain.Account;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -70,5 +71,27 @@ public class AccountController {
         model.addAttribute("numberOfUser", accountRepository.count());
         model.addAttribute("nickname", findAccount.getNickname());
         return view;
+    }
+
+    @GetMapping("/check-email")
+    public String checkEmailForm(@CurrentUser Account account, Model model) {
+        model.addAttribute("email", account.getEmail());
+
+        return "account/check-email";
+    }
+
+    @GetMapping("/resend-confirm-email")
+    public String resendEmail(@CurrentUser Account account, Model model) {
+        if (!account.canSendConfirmMail()) {
+            model.addAttribute("error", "인증 이메일은 1시간에 한번만 전송할 수 있습니다.");
+            model.addAttribute("email", account.getEmail());
+
+            return "account/check-email";
+        }
+
+        accountService.sendMail(account);
+
+        return "redirect:/";
+
     }
 }

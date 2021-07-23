@@ -1,6 +1,6 @@
 package com.anpopo.social.main;
 
-import com.anpopo.social.account.Account;
+import com.anpopo.social.domain.Account;
 import com.anpopo.social.account.CurrentUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -17,5 +17,14 @@ public class MainController {
             model.addAttribute(account);
         }
         return "index";
+    }
+
+    @GetMapping("/login")
+    public String login(@CurrentUser Account account) {
+        if(account != null) {
+            return "redirect:/";
+        }
+
+        return "login";
     }
 }

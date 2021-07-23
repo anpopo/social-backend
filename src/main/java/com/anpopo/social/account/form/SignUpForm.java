@@ -12,7 +12,7 @@ public class SignUpForm {
 
     @Length(min = 5, max = 20, message = "길이 너무 짧거나 깁니다.")
     @NotBlank(message = "입력값이 비었습니다.")
-    @Pattern(regexp = "^[ㄱ-ㅎ가-힣A-z0-9_-]{5,20}$", message = "한글, 영문, 숫자 및 _, - 만 가능합니다.")
+    @Pattern(regexp = "^[ㄱ-ㅎ가-힣A-z0-9._-]{5,20}$", message = "한글, 영문, 숫자 및 . _ - 만 가능합니다.")
     private String nickname;
 
     @Email(message = "이메일 형식에 맞지 않습니다.")

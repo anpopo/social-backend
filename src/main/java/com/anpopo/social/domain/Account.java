@@ -1,4 +1,4 @@
-package com.anpopo.social.account;
+package com.anpopo.social.domain;
 
 import lombok.*;
 import org.apache.tomcat.jni.Local;
@@ -21,6 +21,7 @@ public class Account {
 
     @Column(unique = true)
     private String nickname;
+
     private String password;
 
     private boolean emailVerified;
@@ -63,4 +64,22 @@ public class Account {
         this.emailVerified = true;
         this.joinedAt = LocalDateTime.now();
     }
+
+    public boolean canSendConfirmMail() {
+        // 제일 처음 재전송 메일을 보내는 경우
+        if(this.emailCheckTokenGeneratedAt == null) {
+            this.emailCheckTokenGeneratedAt = LocalDateTime.now();
+            return true;
+        }
+        // 재전송 메일을 두번째 이상 보내는 경우 -> 시간 확인이 필요
+        else {
+            // 1시간 안에 보낸 메일인가?
+            if (this.emailCheckTokenGeneratedAt.isBefore(LocalDateTime.now().minusHours(1))){
+                this.emailCheckTokenGeneratedAt = LocalDateTime.now();
+                return true;
+            }
+            return false;
+        }
+    }
+
 }

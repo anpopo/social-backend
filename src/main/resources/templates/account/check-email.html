@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head-fragment"></head>
+
+<body class="bg-light">
+  <nav th:replace="fragments.html :: nav-fragment"></nav>
+
+  <div class="container">
+    <div class="py-5 text-center" th:if="${error != null}">
+      <p class="lead">The Social 이메일 인증</p>
+      <div  class="alert alert-danger" role="alert" th:text="${error}"></div>
+      <p class="lead" th:text="${email}">your@email.com</p>
+    </div>
+
+    <div class="py-5 text-center" th:if="${error == null}">
+      <p class="lead">The Social 이메일 인증</p>
+
+      <h2 class="alert alert-primary">The Social 서비스를 사용하려면 이메일 인증이 필요합니다..</h2>
+
+      <div>
+        <p class="lead" th:text="${email}">your@email.com</p>
+        <a class="btn btn-outline-info" th:href="@{/resend-confirm-email}">인증 이메일 다시 보내기</a>
+      </div>
+    </div>
+  </div>
+
+  <script th:replace="fragments.html :: script-fragment"></script>
+</body>
+</html>

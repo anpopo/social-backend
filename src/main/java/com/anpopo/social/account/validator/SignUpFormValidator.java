@@ -1,6 +1,5 @@
 package com.anpopo.social.account.validator;
 
-import com.anpopo.social.account.Account;
 import com.anpopo.social.account.AccountRepository;
 import com.anpopo.social.account.form.SignUpForm;
 import lombok.RequiredArgsConstructor;
