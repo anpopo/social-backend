@@ -3,12 +3,19 @@ package com.anpopo.social.account;
 import com.anpopo.social.account.form.SignUpForm;
 import com.anpopo.social.mail.ConsoleMailSender;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+@Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
@@ -22,15 +29,28 @@ public class AccountService {
     public void signUpProcess(SignUpForm signUpForm) {
 
         // 회원 저장
-        Account newAccount = saveAccount(signUpForm);
+        Account newAccount = createAndSaveUserAccount(signUpForm);
 
         newAccount.generateEmailCheckToken();
 
         // 메일 발송
         sendMail(newAccount);
+        
+        // 로그인 처리
+        login(newAccount);
+    }
 
-        // TODO 로그인 처리
+    private void login(Account account) {
 
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                new UserAccount(account),  // spring security 에서 참조하는 principal
+                account.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+
+        //스프링 스큐리티 관점에서 로그인
+        //- SecurityContext 에 Authentication(Token)이 존재하는가?
+        SecurityContextHolder.getContext().setAuthentication(token);
 
     }
 
@@ -38,12 +58,11 @@ public class AccountService {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(newAccount.getEmail());
         mailMessage.setSubject("The Social, 회원 가입 인증");
-        // TODO 토큰 설정 하기
         mailMessage.setText("/email-check-token?token=" + newAccount.getEmailCheckToken() + "&email=" + newAccount.getEmail());
         mailSender.send(mailMessage);
     }
 
-    private Account saveAccount(SignUpForm signUpForm) {
+    private Account createAndSaveUserAccount(SignUpForm signUpForm) {
         Account newAccount = Account.builder()
                 .nickname(signUpForm.getNickname())
                 .email(signUpForm.getEmail())
@@ -57,7 +76,10 @@ public class AccountService {
     }
 
     public void completeSignUp(Account findAccount) {
+        // 회원가입 완료 처리 - 이메일 인증값 true, 회원 가입 시간
         findAccount.completeSignUp();
-        // TODO login 하기
+
+        // 로그인 처리
+        login(findAccount);
     }
 }

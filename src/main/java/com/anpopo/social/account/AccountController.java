@@ -53,11 +53,13 @@ public class AccountController {
 
         String view = "account/checked-email";
 
+        // email 검증
         if ( findAccount == null) {
             model.addAttribute("error", "wrong.email");
             return view;
         }
 
+        // token 값 검증
         if ( !findAccount.isValidToken(token)) {
             model.addAttribute("error", "wrong.token");
             return view;
