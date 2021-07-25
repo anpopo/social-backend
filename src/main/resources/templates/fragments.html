@@ -9,10 +9,32 @@
   <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css" />
   <link rel="stylesheet" href="/node_modules/cropper/dist/cropper.min.css">
+  <link rel="stylesheet" href="/node_modules/@yaireo/tagify/dist/tagify.css"/>
 
   <style>
         .container {
             max-width: 100%
+        }
+
+        .tagify--outside{
+            border: 0;
+        }
+
+        .tagify--outside .tagify__input{
+          order: -1;
+          flex: 100%;
+          border: 1px solid var(--tags-border-color);
+          margin-bottom: 1em;
+          transition: .1s;
+        }
+
+        .tagify--outside .tagify__input:hover{
+            border-color:var(--tags-hover-border-color);
+        }
+
+        .tagify--outside .tagify--focus .tagify__input{
+          transition:0s;
+          border-color: var(--tags-focus-border-color);
         }
     </style>
 </head>
@@ -99,3 +121,16 @@
   <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'users'}? active" href="#" th:href="@{/settings/users}">관심 유저 설정</a>
   <a class="list-group-item list-group-item-action list-group-item-danger" th:classappend="${currentMenu == 'account'}? active" href="#" th:href="@{/settings/account}">계정 관리</a>
 </div>
+
+
+<!-- ajax csrf header fragment -->
+<script type="application/javascript" th:inline="javascript" th:fragment="ajax-csrf-header">
+  $(function() {
+    var csrfToken = /*[[${_csrf.token}]]*/ null;
+    var csrfHeader = /*[[${_csrf.headerName}]]*/ null;
+
+    $(document).ajaxSend(function (e, xhr, options) {
+        xhr.setRequestHeader(csrfHeader, csrfToken);
+    })
+  })
+</script>

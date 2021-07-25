@@ -3,24 +3,28 @@ package com.anpopo.social.settings;
 import com.anpopo.social.account.AccountService;
 import com.anpopo.social.account.CurrentUser;
 import com.anpopo.social.domain.Account;
-import com.anpopo.social.settings.form.AccountForm;
-import com.anpopo.social.settings.form.NotificationForm;
-import com.anpopo.social.settings.form.PasswordForm;
-import com.anpopo.social.settings.form.ProfileForm;
+import com.anpopo.social.domain.AccountTag;
+import com.anpopo.social.domain.Tag;
+import com.anpopo.social.settings.form.*;
 import com.anpopo.social.settings.validator.AccountFormValidator;
 import com.anpopo.social.settings.validator.PasswordFormValidator;
+import com.anpopo.social.tag.TagRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RequestMapping("/settings")
@@ -30,6 +34,8 @@ public class SettingsController {
     private final AccountService accountService;
     private final PasswordFormValidator passwordValidator;
     private final AccountFormValidator accountFormValidator;
+    private final ObjectMapper objectMapper;
+    private final TagRepository tagRepository;
 
     @InitBinder("passwordForm")
     public void initPasswordValidator(WebDataBinder webDataBinder) {
@@ -143,6 +149,45 @@ public class SettingsController {
         redirectAttributes.addFlashAttribute("message", "계정 정보를 변경했습니다.");
 
         return "redirect:/settings/account";
+    }
+
+    @GetMapping("/tags")
+    public String updateTagsView(@CurrentUser Account account, Model model) throws JsonProcessingException {
+        model.addAttribute(account);
+
+        Set<Tag> tags = accountService.getTag(account);
+
+        model.addAttribute("tags", tags.stream().map(Tag::getTitle).sorted().collect(Collectors.toList()));
+
+        List<String> allTags = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
+
+        model.addAttribute("whiteList", objectMapper.writeValueAsString(allTags));
+
+        return "settings/tags";
+    }
+
+    @ResponseBody
+    @PostMapping("/tags/add")
+    public ResponseEntity addTags(@CurrentUser Account account, @RequestBody TagForm tagForm) {
+        String title = tagForm.getTagTitle();
+
+        accountService.addAccountTag(account, title);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/tags/remove")
+    public ResponseEntity removeTag(@CurrentUser Account account, @RequestBody TagForm tagForm) {
+        String title = tagForm.getTagTitle();
+
+        Optional<Tag> tag = tagRepository.findByTitle(title);
+
+        if (tag.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        accountService.removeTag(account, tag.get());
+        return ResponseEntity.ok().build();
     }
 
 }

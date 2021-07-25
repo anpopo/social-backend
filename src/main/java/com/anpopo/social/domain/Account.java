@@ -7,6 +7,8 @@ import org.apache.tomcat.jni.Local;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter @Builder
@@ -15,7 +17,7 @@ import java.util.UUID;
 @Entity
 public class Account {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)
@@ -24,6 +26,7 @@ public class Account {
     @Column(unique = true)
     private String nickname;
 
+    @Column(length = 1000)
     private String password;
 
     private boolean emailVerified;
@@ -43,6 +46,9 @@ public class Account {
     private String bio;
 
     // TODO 관심사 등록하기
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
+    private Set<AccountTag> accountTags = new HashSet<>();
+
     // TODO 관심 유저
 
     @Lob @Basic(fetch = FetchType.EAGER)

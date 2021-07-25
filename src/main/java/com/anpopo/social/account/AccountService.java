@@ -2,8 +2,11 @@ package com.anpopo.social.account;
 
 import com.anpopo.social.account.form.SignUpForm;
 import com.anpopo.social.domain.Account;
+import com.anpopo.social.domain.AccountTag;
+import com.anpopo.social.domain.Tag;
 import com.anpopo.social.settings.form.NotificationForm;
 import com.anpopo.social.settings.form.ProfileForm;
+import com.anpopo.social.tag.TagRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
@@ -18,7 +21,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,6 +36,8 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
+    private final AccountTagRepository accountTagRepository;
+    private final TagRepository tagRepository;
 
     public void signUpProcess(SignUpForm signUpForm) {
 
@@ -140,6 +149,54 @@ public class AccountService implements UserDetailsService {
         account.updateAccountInfo(nickname);
         accountRepository.save(account);
         login(account);
+
+    }
+
+    public Set<Tag> getTag(Account account) {
+
+        Optional<Account> findAccount = accountRepository.findById(account.getId());
+
+        return findAccount.orElseThrow(() -> new IllegalArgumentException("계정이 존재하지 않습니다."))
+                .getAccountTags().stream().map(AccountTag::getTag)
+                .collect(Collectors.toSet());
+
+    }
+
+    public void addAccountTag(Account account, String title) {
+        Optional<Account> findAccount = accountRepository.findById(account.getId());
+
+        findAccount.ifPresent(a -> {
+            Tag tag = tagRepository.findByTitle(title)
+                    .orElseGet(
+                            () -> tagRepository.save(
+                                    Tag.builder()
+                                            .title(title)
+                                            .account(a)
+                                            .createdAt(LocalDateTime.now())
+                                            .build()
+                            )
+                    );
+
+            a.getAccountTags().add(
+                    accountTagRepository.save(
+                            AccountTag.builder()
+                                    .account(a)
+                                    .tag(tag)
+                                    .build())
+            );
+        });
+    }
+
+    public void removeTag(Account account, Tag tag) {
+        Optional<Account> findAccount = accountRepository.findById(account.getId());
+
+        findAccount.ifPresent(a -> {
+            AccountTag byAccountAndTag = accountTagRepository.findByAccountAndTag(account, tag);
+
+            a.getAccountTags().remove(byAccountAndTag);
+            accountTagRepository.delete(byAccountAndTag);
+        });
+
 
     }
 }
