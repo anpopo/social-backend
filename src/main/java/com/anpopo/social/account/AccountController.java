@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
@@ -32,7 +33,11 @@ public class AccountController {
     }
 
     @GetMapping("/sign-up")
-    public String signUpForm(Model model) {
+    public String signUpForm(@CurrentUser Account account, Model model) {
+        if (account != null) {
+            return "redirect:/";
+        }
+
         model.addAttribute(new SignUpForm());
         return "account/sign-up";
     }
@@ -53,25 +58,23 @@ public class AccountController {
     public String checkEmailToken(String token, String email, Model model) {
         Account findAccount = accountRepository.findByEmail(email);
 
-        String view = "account/checked-email";
-
         // email 검증
         if ( findAccount == null) {
             model.addAttribute("error", "wrong.email");
-            return view;
+            return "account/checked-email";
         }
 
         // token 값 검증
         if ( !findAccount.isValidToken(token)) {
             model.addAttribute("error", "wrong.token");
-            return view;
+            return "account/checked-email";
         }
 
         accountService.completeSignUp(findAccount);
 
         model.addAttribute("numberOfUser", accountRepository.count());
         model.addAttribute("nickname", findAccount.getNickname());
-        return view;
+        return "account/checked-email";
     }
 
     @GetMapping("/check-email")
@@ -109,6 +112,45 @@ public class AccountController {
         return "account/profile";
     }
 
+    @GetMapping("/email-login")
+    public String emailLoginView() {
+        return "account/email-login";
+    }
 
+    @PostMapping("/email-login")
+    public String emailLogin(String email, Model model, RedirectAttributes redirectAttributes) {
+        Account account = accountRepository.findByEmail(email);
+
+        if (account == null) {
+            model.addAttribute("error", "해당 이메일로 가입된 계정을 찾을 수 없습니다.");
+            return "account/email-login";
+        }
+        // 이메일을 무차별로 보낼 수 있기 때문에 1시간에 1건을 할 수 있도록 해야한다.
+
+        if (!account.canSendConfirmMail()) {
+            model.addAttribute("error", "이메일은 1시간에 1번만 보낼 수 있습니다.");
+            return "account/email-login";
+        }
+
+        // 이메일로 로그인 가능한 링크 보내기
+        accountService.sendEmailLoginLink(account);
+        redirectAttributes.addFlashAttribute("message", "인증 이메일을 발송 했습니다.");
+
+        return "redirect:/email-login";
+    }
+
+    @GetMapping("/login-by-email")
+    public String emailLoginCheckToken(String token, String email, Model model) {
+
+        Account findAccount = accountRepository.findByEmail(email);
+
+        if (findAccount == null || !findAccount.isValidToken(token)) {
+            model.addAttribute("error", "로그인에 실패했습니다.");
+        }
+
+        accountService.login(findAccount);
+
+        return "account/email-logged-in";
+    }
 
 }

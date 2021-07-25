@@ -22,7 +22,7 @@ public class SettingsController {
     private final AccountService accountService;
 
     @GetMapping("/profile")
-    public String updateProfileView (@CurrentUser Account account, Model model) {
+    public String updateProfileView(@CurrentUser Account account, Model model) {
 
         ProfileForm profileForm = new ProfileForm();
 
@@ -47,6 +47,11 @@ public class SettingsController {
         redirectAttributes.addFlashAttribute("message", "프로필 수정을 완료했습니다.");
 
         return "redirect:/settings/profile";
+    }
+
+    @GetMapping("/password")
+    public String updatePasswordView() {
+        return "settings/password";
     }
 
 }

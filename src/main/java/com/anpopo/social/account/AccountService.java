@@ -34,8 +34,6 @@ public class AccountService implements UserDetailsService {
         // 회원 저장
         Account newAccount = createAndSaveUserAccount(signUpForm);
 
-        newAccount.generateEmailCheckToken();
-
         // 메일 발송
         sendMail(newAccount);
         
@@ -43,7 +41,7 @@ public class AccountService implements UserDetailsService {
         login(newAccount);
     }
 
-    private void login(Account account) {
+    public void login(Account account) {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 new UserAccount(account),  // spring security 에서 참조하는 principal
                 account.getPassword(),
@@ -56,10 +54,10 @@ public class AccountService implements UserDetailsService {
     }
 
     public void sendMail(Account account) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(account.getEmail());
-        mailMessage.setSubject("The Social, 회원 가입 인증");
-        mailMessage.setText("/email-check-token?token=" + account.getEmailCheckToken() + "&email=" + account.getEmail());
+        SimpleMailMessage mailMessage = getSimpleMailMessage(
+                account,
+                "The Social, 회원 가입 인증",
+                "/email-check-token?token=");
         mailSender.send(mailMessage);
     }
 
@@ -71,6 +69,8 @@ public class AccountService implements UserDetailsService {
                 .favoriteSubjectPostingByWeb(false)
                 .favoriteUserPostingByWeb(false)
                 .build();
+
+        newAccount.generateEmailCheckToken();
 
         accountRepository.save(newAccount);
         return newAccount;
@@ -105,5 +105,24 @@ public class AccountService implements UserDetailsService {
     public void updateProfile(Account account, ProfileForm profileForm) {
         account.updateProfile(profileForm);
         accountRepository.save(account);
+    }
+
+    public void sendEmailLoginLink(Account account) {
+        account.generateEmailCheckToken();
+
+        SimpleMailMessage mailMessage = getSimpleMailMessage(
+                account,
+                "스터디올래, 로그인 링크",
+                "/login-by-email?token=");
+
+        mailSender.send(mailMessage);
+    }
+
+    private SimpleMailMessage getSimpleMailMessage(Account account, String subject, String url) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(account.getEmail());
+        mailMessage.setSubject(subject);
+        mailMessage.setText(url + account.getEmailCheckToken() + "&email=" + account.getEmail());
+        return mailMessage;
     }
 }
