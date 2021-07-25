@@ -8,6 +8,7 @@
   <title>The Social</title>
   <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="/node_modules/cropper/dist/cropper.min.css">
 
   <style>
         .container {
@@ -49,7 +50,7 @@
         </a>
       </li>
       <li class="nav-item" sec:authorize="isAuthenticated()">
-        <a class="nav-link btn btn-outline-primary" th:href="@{/notifications}">
+        <a class="nav-link btn btn-outline-primary" style="border: none;" th:href="@{/notifications}">
           <i class="fa fa-plus" aria-hidden="true"></i> 새 포스팅 작성
         </a>
       </li>

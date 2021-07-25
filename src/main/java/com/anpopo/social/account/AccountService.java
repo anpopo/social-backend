@@ -2,6 +2,7 @@ package com.anpopo.social.account;
 
 import com.anpopo.social.account.form.SignUpForm;
 import com.anpopo.social.domain.Account;
+import com.anpopo.social.settings.form.NotificationForm;
 import com.anpopo.social.settings.form.ProfileForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +62,40 @@ public class AccountService implements UserDetailsService {
         mailSender.send(mailMessage);
     }
 
+    public void completeSignUp(Account findAccount) {
+        // 회원가입 완료 처리 - 이메일 인증값 true, 회원 가입 시간
+        findAccount.completeSignUp();
+
+        // 로그인 처리
+        login(findAccount);
+    }
+
+    public void sendEmailLoginLink(Account account) {
+        account.generateEmailCheckToken();
+
+        SimpleMailMessage mailMessage = getSimpleMailMessage(
+                account,
+                "스터디올래, 로그인 링크",
+                "/login-by-email?token=");
+
+        mailSender.send(mailMessage);
+    }
+
+    public void updateProfile(Account account, ProfileForm profileForm) {
+        account.updateProfile(profileForm);
+        accountRepository.save(account);
+    }
+
+    public void updatePassword(Account account, String newPassword) {
+        account.updatePassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+    }
+
+    public void updateNotifications(Account account, NotificationForm notificationForm) {
+        account.updateNotifications(notificationForm);
+        accountRepository.save(account);
+    }
+
     private Account createAndSaveUserAccount(SignUpForm signUpForm) {
         Account newAccount = Account.builder()
                 .nickname(signUpForm.getNickname())
@@ -76,12 +111,12 @@ public class AccountService implements UserDetailsService {
         return newAccount;
     }
 
-    public void completeSignUp(Account findAccount) {
-        // 회원가입 완료 처리 - 이메일 인증값 true, 회원 가입 시간
-        findAccount.completeSignUp();
-
-        // 로그인 처리
-        login(findAccount);
+    private SimpleMailMessage getSimpleMailMessage(Account account, String subject, String url) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(account.getEmail());
+        mailMessage.setSubject(subject);
+        mailMessage.setText(url + account.getEmailCheckToken() + "&email=" + account.getEmail());
+        return mailMessage;
     }
 
     @Transactional(readOnly = true)
@@ -101,28 +136,10 @@ public class AccountService implements UserDetailsService {
         return new UserAccount(account);
     }
 
-
-    public void updateProfile(Account account, ProfileForm profileForm) {
-        account.updateProfile(profileForm);
+    public void updateAccountInfo(Account account, String nickname) {
+        account.updateAccountInfo(nickname);
         accountRepository.save(account);
-    }
+        login(account);
 
-    public void sendEmailLoginLink(Account account) {
-        account.generateEmailCheckToken();
-
-        SimpleMailMessage mailMessage = getSimpleMailMessage(
-                account,
-                "스터디올래, 로그인 링크",
-                "/login-by-email?token=");
-
-        mailSender.send(mailMessage);
-    }
-
-    private SimpleMailMessage getSimpleMailMessage(Account account, String subject, String url) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(account.getEmail());
-        mailMessage.setSubject(subject);
-        mailMessage.setText(url + account.getEmailCheckToken() + "&email=" + account.getEmail());
-        return mailMessage;
     }
 }

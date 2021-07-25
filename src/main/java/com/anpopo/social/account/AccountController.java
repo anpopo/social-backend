@@ -74,13 +74,14 @@ public class AccountController {
 
         model.addAttribute("numberOfUser", accountRepository.count());
         model.addAttribute("nickname", findAccount.getNickname());
+        model.addAttribute(findAccount);
         return "account/checked-email";
     }
 
     @GetMapping("/check-email")
     public String checkEmailForm(@CurrentUser Account account, Model model) {
         model.addAttribute("email", account.getEmail());
-
+        model.addAttribute(account);
         return "account/check-email";
     }
 
@@ -113,7 +114,11 @@ public class AccountController {
     }
 
     @GetMapping("/email-login")
-    public String emailLoginView() {
+    public String emailLoginView(@CurrentUser Account account) {
+        if (account != null) {
+            return "redirect:/";
+        }
+
         return "account/email-login";
     }
 
@@ -144,11 +149,18 @@ public class AccountController {
 
         Account findAccount = accountRepository.findByEmail(email);
 
-        if (findAccount == null || !findAccount.isValidToken(token)) {
+        if (findAccount == null) {
             model.addAttribute("error", "로그인에 실패했습니다.");
+            return "account/email-logged-in";
+        }
+
+        if (!findAccount.isValidToken(token)) {
+            model.addAttribute("error", "로그인에 실패했습니다.");
+            return "account/email-logged-in";
         }
 
         accountService.login(findAccount);
+        model.addAttribute(findAccount);
 
         return "account/email-logged-in";
     }

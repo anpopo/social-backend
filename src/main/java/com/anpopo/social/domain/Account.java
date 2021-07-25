@@ -1,5 +1,6 @@
 package com.anpopo.social.domain;
 
+import com.anpopo.social.settings.form.NotificationForm;
 import com.anpopo.social.settings.form.ProfileForm;
 import lombok.*;
 import org.apache.tomcat.jni.Local;
@@ -86,5 +87,18 @@ public class Account {
     public void updateProfile(ProfileForm profileForm) {
         this.bio = profileForm.getBio();
         this.profileImage = profileForm.getProfileImage();
+    }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    public void updateNotifications(NotificationForm notificationForm) {
+        this.favoriteUserPostingByWeb = notificationForm.isFavoriteUserPostingByWeb();
+        this.favoriteSubjectPostingByWeb = notificationForm.isFavoriteSubjectPostingByWeb();
+    }
+
+    public void updateAccountInfo(String nickname) {
+        this.nickname = nickname;
     }
 }

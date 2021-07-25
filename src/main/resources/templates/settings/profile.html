@@ -24,9 +24,9 @@
                 <div class="row mt-3">
                     <form class="col-sm-6 needs-validation" th:action="@{/settings/profile}" th:object="${profileForm}" method="post" novalidate>
                         <div class="form-group">
-                            <label for="bio">소개</label>
+                            <label for="bio">소개 입력</label>
                             <textarea id="bio" th:field="*{bio}" class="form-control" rows="10" cols="20" style="resize: none;"
-                                      placeholder="간략한 소개를 부탁합니다." aria-describedby="bioHelp" required maxlength="200"></textarea>
+                                      placeholder="간략한 소개를 부탁합니다." aria-describedby="bioHelp" maxlength="200"></textarea>
                             <small id="bioHelp" class="form-text text-muted mt-2">
                                 200자 이내로 자신을 표현해 보세요.
                             </small>
@@ -46,39 +46,119 @@
                         </div>
                     </form>
 
-<!--                    <div class="col-sm-6">-->
-<!--                        <div class="card text-center">-->
-<!--                            <div class="card-header">-->
-<!--                                프로필 이미지-->
-<!--                            </div>-->
-<!--                            <div id="current-profile-image" class="mt-3">-->
-<!--                                <svg th:if="${#strings.isEmpty(profileForm?.profileImage)}" class="rounded"-->
-<!--                                     th:data-jdenticon-value="${profileForm.nickname}" width="125" height="125"></svg>-->
-<!--                                <img th:if="${!#strings.isEmpty(profileForm?.profileImage)}" class="rounded"-->
-<!--                                     th:src="${profileForm.profileImage}" width="125" height="125" alt="name" th:alt="${profileForm.nickname}" />-->
-<!--                            </div>-->
-<!--                            <div id="new-profile-image" class="mt-3"></div>-->
-<!--                            <div class="card-body">-->
-<!--                                <div class="custom-file">-->
-<!--                                    <input type="file" class="custom-file-input" id="profile-image-file">-->
-<!--                                    <label class="custom-file-label" for="profile-image-file">프로필 이미지 변경</label>-->
-<!--                                </div>-->
-<!--                                <div id="new-profile-image-control" class="mt-3">-->
-<!--                                    <button class="btn btn-outline-primary btn-block" id="cut-button">자르기</button>-->
-<!--                                    <button class="btn btn-outline-success btn-block" id="confirm-button">확인</button>-->
-<!--                                    <button class="btn btn-outline-warning btn-block" id="reset-button">취소</button>-->
+                    <div class="col-sm-6">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                프로필 이미지
+                            </div>
+                            <div id="current-profile-image" class="mt-3">
+                                <svg th:if="${#strings.isEmpty(profileForm?.profileImage)}" class="rounded"
+                                     th:data-jdenticon-value="${profileForm.nickname}" width="125" height="125"></svg>
+                                <img th:if="${!#strings.isEmpty(profileForm?.profileImage)}" class="rounded"
+                                     th:src="${profileForm.profileImage}" width="125" height="125" alt="name" th:alt="${profileForm.nickname}" />
+                            </div>
+                            <div id="new-profile-image" class="mt-3"></div>
+                            <div class="card-body">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="profile-image-file" placeholder="프로필 이미지 변경">
+                                    <label class="custom-file-label" for="profile-image-file">프로필 이미지 변경</label>
+                                </div>
+                                <div id="new-profile-image-control" class="mt-3">
+                                    <button class="btn btn-outline-primary btn-block" id="cut-button">자르기</button>
+                                    <button class="btn btn-outline-success btn-block" id="confirm-button">확인</button>
+                                    <button class="btn btn-outline-warning btn-block" id="reset-button">취소</button>
 
-<!--                                </div>-->
-<!--                                <div id="cropped-new-profile-image" class="mt-3"></div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
+                                </div>
+                                <div id="cropped-new-profile-image" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script th:replace="fragments.html :: script-fragment"></script>
+    <script src="/node_modules/cropper/dist/cropper.min.js"></script>
+    <script src="/node_modules/jquery-cropper/dist/jquery-cropper.min.js"></script>
+    <script type="application/javascript">
+        $(function() {
+            cropper = '';
+            let $confirmBtn = $("#confirm-button");
+            let $resetBtn = $("#reset-button");
+            let $cutBtn = $("#cut-button");
+            let $currentProfileImage = $("#current-profile-image");
+            let $newProfileImage = $("#new-profile-image");
+            let $resultImage = $("#cropped-new-profile-image");
+            let $profileImage = $("#profileImage");
+
+            $newProfileImage.hide();
+            $cutBtn.hide();
+            $resetBtn.hide();
+            $confirmBtn.hide();
+
+            $("#profile-image-file").change(function(e) {
+                if(e.target.files.length === 1) {
+                    const reader = new FileReader();
+
+                    reader.onload = e => {
+                        if(e.target.result) {
+                            let img = document.createElement("img");
+                            img.id = 'new-profile';
+                            img.src = e.target.result;
+                            img.width = 250;
+
+                            $newProfileImage.html(img);
+                            $newProfileImage.show();
+                            $currentProfileImage.hide();
+
+                            let $newImage = $(img);
+                            $newImage.cropper({aspectRatio: 1});
+                            cropper = $newImage.data("cropper");
+
+                            $cutBtn.show();
+                            $confirmBtn.hide();
+                            $resetBtn.show();
+                        }
+                    }
+
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+
+            $resetBtn.click(function () {
+                $currentProfileImage.show();
+                $newProfileImage.hide();
+                $resultImage.hide();
+                $resetBtn.hide();
+                $cutBtn.hide();
+                $confirmBtn.hide();
+                $profileImage.val('');
+            });
+
+            $cutBtn.click(function() {
+                let dataUrl = cropper.getCroppedCanvas().toDataURL();
+                let newImage = document.createElement("img");
+
+                newImage.id = "cropped-new-profile-image";
+                newImage.src = dataUrl;
+                newImage.width = 125;
+
+                $resultImage.html(newImage);
+                $resultImage.show();
+                $confirmBtn.show();
+
+                $confirmBtn.click(function () {
+                    $newProfileImage.html(newImage);
+                    $cutBtn.hide();
+                    $confirmBtn.hide();
+                    $profileImage.val(dataUrl);
+                    $profileImage.val(dataUrl);
+                })
+            })
+        });
+
+    </script>
     <script type="application/javascript">
         $(function () {
             'use strict';

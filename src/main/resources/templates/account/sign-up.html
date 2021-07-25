@@ -17,7 +17,7 @@
                            placeholder="닉네임을 입력하세요." aria-describedby="nicknameHelp" autocomplete="username"
                            required minlength="5" maxlength="20">
                     <small id="nicknameHelp" class="form-text text-muted">
-                        한글, 영어, 숫자만 가능합니다. 5-20자로 입력해주세요.
+                        한글, 영어, 숫자 만 가능합니다. 5-20자로 입력해주세요.
                     </small>
                     <small class="invalid-feedback">닉네임을 입력하세요.</small>
                     <small class="form-text text-danger" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}">Nickname Error</small>
