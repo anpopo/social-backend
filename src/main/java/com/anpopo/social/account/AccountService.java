@@ -2,6 +2,7 @@ package com.anpopo.social.account;
 
 import com.anpopo.social.account.form.SignUpForm;
 import com.anpopo.social.domain.Account;
+import com.anpopo.social.settings.form.ProfileForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
@@ -21,14 +22,13 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional
     public void signUpProcess(SignUpForm signUpForm) {
 
         // 회원 저장
@@ -44,7 +44,6 @@ public class AccountService implements UserDetailsService {
     }
 
     private void login(Account account) {
-
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 new UserAccount(account),  // spring security 에서 참조하는 principal
                 account.getPassword(),
@@ -54,7 +53,6 @@ public class AccountService implements UserDetailsService {
         //스프링 스큐리티 관점에서 로그인
         //- SecurityContext 에 Authentication(Token)이 존재하는가?
         SecurityContextHolder.getContext().setAuthentication(token);
-
     }
 
     public void sendMail(Account account) {
@@ -101,5 +99,11 @@ public class AccountService implements UserDetailsService {
         }
 
         return new UserAccount(account);
+    }
+
+
+    public void updateProfile(Account account, ProfileForm profileForm) {
+        account.updateProfile(profileForm);
+        accountRepository.save(account);
     }
 }

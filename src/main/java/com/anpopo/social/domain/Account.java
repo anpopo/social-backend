@@ -1,5 +1,6 @@
 package com.anpopo.social.domain;
 
+import com.anpopo.social.settings.form.ProfileForm;
 import lombok.*;
 import org.apache.tomcat.jni.Local;
 
@@ -41,7 +42,7 @@ public class Account {
     private String bio;
 
     // TODO 관심사 등록하기
-    // TODO 관심 있는 유저
+    // TODO 관심 유저
 
     @Lob @Basic(fetch = FetchType.EAGER)
     private String profileImage;
@@ -82,4 +83,8 @@ public class Account {
         }
     }
 
+    public void updateProfile(ProfileForm profileForm) {
+        this.bio = profileForm.getBio();
+        this.profileImage = profileForm.getProfileImage();
+    }
 }
