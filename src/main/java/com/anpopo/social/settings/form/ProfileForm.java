@@ -10,7 +10,7 @@ public class ProfileForm {
 
     private String nickname;
 
-    @Length(max = 200)
+    @Length(max = 130, message = "100자 이내로 작성해주세요.(띄어쓰기 포함)")
     private String bio;
     private String profileImage;
 

@@ -1,9 +1,9 @@
 package com.anpopo.social.settings;
 
+import com.anpopo.social.account.AccountRepository;
 import com.anpopo.social.account.AccountService;
 import com.anpopo.social.account.CurrentUser;
 import com.anpopo.social.domain.Account;
-import com.anpopo.social.domain.AccountTag;
 import com.anpopo.social.domain.Tag;
 import com.anpopo.social.settings.form.*;
 import com.anpopo.social.settings.validator.AccountFormValidator;
@@ -12,6 +12,7 @@ import com.anpopo.social.tag.TagRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/settings")
 @Controller
@@ -36,6 +38,7 @@ public class SettingsController {
     private final AccountFormValidator accountFormValidator;
     private final ObjectMapper objectMapper;
     private final TagRepository tagRepository;
+    private final AccountRepository accountRepository;
 
     @InitBinder("passwordForm")
     public void initPasswordValidator(WebDataBinder webDataBinder) {
@@ -66,6 +69,8 @@ public class SettingsController {
 
     @PostMapping("/profile")
     public String updateProfile(@CurrentUser Account account, @Valid ProfileForm profileForm, Errors errors, Model model, RedirectAttributes redirectAttributes) {
+
+        log.info("this is the text: {}", profileForm.getBio());
         if (errors.hasErrors()) {
             model.addAttribute(account);
             model.addAttribute(profileForm);
@@ -104,7 +109,7 @@ public class SettingsController {
         model.addAttribute(account);
 
         NotificationForm notificationForm = new NotificationForm();
-        notificationForm.setFavoriteUserPostingByWeb(account.isFavoriteUserPostingByWeb());
+        notificationForm.setFollowingAccountPostingByWeb(account.isFollowingAccountPostingByWeb());
         notificationForm.setFavoriteSubjectPostingByWeb(account.isFavoriteSubjectPostingByWeb());
 
         model.addAttribute(notificationForm);
@@ -176,6 +181,7 @@ public class SettingsController {
         return ResponseEntity.ok().build();
     }
 
+    @ResponseBody
     @PostMapping("/tags/remove")
     public ResponseEntity removeTag(@CurrentUser Account account, @RequestBody TagForm tagForm) {
         String title = tagForm.getTagTitle();
@@ -185,9 +191,40 @@ public class SettingsController {
         if (tag.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-
         accountService.removeTag(account, tag.get());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/followers")
+    public String followersView(@CurrentUser Account account, Model model) throws JsonProcessingException {
+        model.addAttribute(account);
+        Set<Account> followers = accountService.getFollowers(account);
+
+        model.addAttribute(
+                "followers",
+                followers.stream()
+                    .map(a -> new FollowForm(a.getId(), a.getNickname(), a.getProfileImage()))
+                    .collect(Collectors.toList()));
+
+        model.addAttribute("numberOfFollowers", followers.size());
+
+        return "settings/followers";
+    }
+
+    @GetMapping("/followings")
+    public String followingsView(@CurrentUser Account account, Model model) throws JsonProcessingException {
+        model.addAttribute(account);
+        Set<Account> followings = accountService.getFollowings(account);
+
+        model.addAttribute(
+                "followings",
+                followings.stream()
+                        .map(a -> new FollowForm(a.getId(), a.getNickname(), a.getProfileImage()))
+                        .collect(Collectors.toList()));
+
+        model.addAttribute("numberOfFollowings", followings.size());
+
+        return "settings/followings";
     }
 
 }

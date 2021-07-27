@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 @Data @NoArgsConstructor
 public class NotificationForm {
 
-    private boolean favoriteUserPostingByWeb;
+    private boolean followingAccountPostingByWeb;
     private boolean favoriteSubjectPostingByWeb;
 }

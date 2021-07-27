@@ -1,33 +1,60 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" >
-<head th:replace="fragments.html :: head-fragment"></head>
+<head th:replace="fragments.html :: head-fragment">
+
+</head>
 <body>
     <nav th:replace="fragments.html :: nav-fragment"></nav>
 
     <div class="container">
-        <div class="row mt-5 justify-content-center">
+        <div class="row my-5 justify-content-center">
             <div class="col-2">
                 <!-- Avatar -->
-                <svg th:if="${#strings.isEmpty(account.profileImage)}" class="img-fluid float-left rounded img-thumbnail"
-                     th:data-jdenticon-value="${account.nickname}" width="125" height="125"></svg>
-                <img th:if="${!#strings.isEmpty(account.profileImage)}" class="img-fluid float-left rounded img-thumbnail"
-                     th:src="${account.profileImage}"
-                     width="125" height="125"/>
+                <svg th:if="${#strings.isEmpty(findAccount.profileImage)}" class="img-fluid float-left rounded img-thumbnail"
+                     th:data-jdenticon-value="${findAccount.nickname}" width="150" height="150"></svg>
+                <img th:if="${!#strings.isEmpty(findAccount.profileImage)}" class="img-fluid float-left rounded img-thumbnail"
+                     th:src="${findAccount.profileImage}"
+                     width="150" height="150"/>
             </div>
             <div class="col-8">
-                <h1 class="display-4 " th:text="${account.nickname}">nickname</h1>
-                <pre class="lead" th:if="${!#strings.isEmpty(account.bio)}" th:text="${account.bio}">bio</pre>
-                <p class="lead mt-3" th:if="${#strings.isEmpty(account.bio) && isOwner}">
-                    한 줄 소개를 추가하세요.
-                </p>
+                <div class="row my-3 d-flex px-4">
+                    <h2 class="display-4 mr-auto" th:text="${findAccount.nickname}" style="font-weight: bold;">nickname</h2>
+                    <div th:if="${!isOwner}" class="align-self-center"  th:with="findAccount=${findAccount}">
+                        <!--내 팔로우에 없는 계정이라면 if 조건절 추가해야함-->
+                        <a th:if="${!isFollowing}" class="nav-link btn btn-outline-primary" style="border: none;" th:href="@{|/following/${findAccount.nickname}/request|}">
+                            <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 신청
+                        </a>
+
+<!--                        &lt;!&ndash; 이미 팔로우 신청을 했으면 if 조건절 추가해야함 &ndash;&gt;-->
+<!--                        <a class="nav-link btn btn-outline-info" style="border: none;" th:href="@{|/following/${account.nickname}/cancel|}">-->
+<!--                            <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 수락 취소하기-->
+<!--                        </a>-->
+
+                        <!--내 팔로우에 있는 계정이라면 if 조건절 추가해야함 -->
+                        <a th:if="${isFollowing}" class="nav-link btn btn-outline-danger" style="border: none;" th:href="@{|/following/${findAccount.nickname}/delete|}">
+                            <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 끊기
+                        </a>
+                    </div>
+                </div>
+                <div class="mt-3 lead">
+                    <pre th:if="${!#strings.isEmpty(findAccount.bio)}" style="font-size: 1rem;"
+                         th:utext="${findAccount.bio}">bio</pre>
+                    <p class="lead" th:if="${#strings.isEmpty(findAccount.bio) && isOwner}">
+                        <a href="#" th:href="@{/settings/profile}">한 줄 소개를 추가하세요.</a>
+                    </p>
+                </div>
             </div>
         </div>
 
         <div class="row mt-3 justify-content-center">
             <div class="col-2">
                 <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                    <a class="nav-link active" id="v-pills-intro-tab" data-toggle="pill" href="#v-pills-profile"
-                       role="tab" aria-controls="v-pills-profile" aria-selected="true">소개</a>
+                    <a th:if="${isOwner}" class="nav-link" th:classappend="${isOwner} ? 'active'" id="v-pills-intro-tab" data-toggle="pill" href="#v-pills-profile"
+                       role="tab" aria-controls="v-pills-profile" aria-selected="true">프로필</a>
+                    <a class="nav-link" id="v-pills-follower-tab" th:classappend="${!isOwner} ? 'active'" data-toggle="pill" href="#v-pills-follower"
+                       role="tab" aria-controls="v-pills-posting" aria-selected="false" th:aria-selected="${!isOwner}">Follower</a>
+                    <a class="nav-link" id="v-pills-following-tab" data-toggle="pill" href="#v-pills-following"
+                       role="tab" aria-controls="v-pills-posting" aria-selected="false">Following</a>
                     <a class="nav-link" id="v-pills-posting-tab" data-toggle="pill" href="#v-pills-posting"
                        role="tab" aria-controls="v-pills-posting" aria-selected="false">포스팅</a>
                 </div>
@@ -55,6 +82,12 @@
                             <a class="btn btn-outline-primary" href="#" th:href="@{/settings/profile}">계정 정보 관리</a>
                         </div>
                     </div>
+                    <div class="tab-pane fade" id="v-pills-follower" role="tabpanel" aria-labelledby="v-pills-follower-tab">
+                        follower
+                    </div>
+                    <div class="tab-pane fade" id="v-pills-following" role="tabpanel" aria-labelledby="v-pills-following-tab">
+                        following
+                    </div>
                     <div class="tab-pane fade" id="v-pills-posting" role="tabpanel" aria-labelledby="v-pills-profile-tab">
                         posting
                     </div>
@@ -64,5 +97,6 @@
     </div>
 
     <script th:replace="fragments.html :: script-fragment"></script>
+
 </body>
 </html>

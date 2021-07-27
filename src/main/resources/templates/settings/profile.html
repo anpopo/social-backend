@@ -25,13 +25,13 @@
                     <form class="col-sm-6 needs-validation" th:action="@{/settings/profile}" th:object="${profileForm}" method="post" novalidate>
                         <div class="form-group">
                             <label for="bio">소개 입력</label>
-                            <textarea id="bio" th:field="*{bio}" class="form-control" rows="10" cols="20" style="resize: none;"
-                                      placeholder="간략한 소개를 부탁합니다." aria-describedby="bioHelp" maxlength="200"></textarea>
+                            <textarea id="bio" th:field="*{bio}" class="form-control" rows="10" th:utext="*{bio}"
+                                      placeholder="간략한 소개를 부탁합니다." aria-describedby="bioHelp" maxlength="100"></textarea>
                             <small id="bioHelp" class="form-text text-muted mt-2">
-                                200자 이내로 자신을 표현해 보세요.
+                                100자 이내로 자신을 표현해 보세요.
                             </small>
                             <small class="form-text text-danger" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}">
-                                조금 길어요.
+                                100자 이내로 작성해 주세요.
                             </small>
                         </div>
 
@@ -106,7 +106,7 @@
                             let img = document.createElement("img");
                             img.id = 'new-profile';
                             img.src = e.target.result;
-                            img.width = 250;
+                            img.setAttribute('width', '100%');
 
                             $newProfileImage.html(img);
                             $newProfileImage.show();
@@ -142,7 +142,7 @@
 
                 newImage.id = "cropped-new-profile-image";
                 newImage.src = dataUrl;
-                newImage.width = 125;
+                newImage.width = 150;
 
                 $resultImage.html(newImage);
                 $resultImage.show();
@@ -178,6 +178,22 @@
                 })
             }, false)
         })
+    </script>
+
+    <script type="application/javascript">
+        $(document).ready(function() {
+
+            /* 텍스트박스 자동 스크롤 기능 */
+
+            // 입력에 따른 처리
+            $('.custom-textarea').on('keyup', function (e){
+                $(this).css('height', 'auto' );
+                $(this).height(this.scrollHeight);
+            });
+
+            // 초기 로드시 크기 조절 처리
+            $('.custom-textarea').keyup();
+        }
     </script>
 </body>
 </html>

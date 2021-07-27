@@ -9,6 +9,8 @@ import com.anpopo.social.settings.form.ProfileForm;
 import com.anpopo.social.tag.TagRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.boot.model.naming.IllegalIdentifierException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -111,7 +113,7 @@ public class AccountService implements UserDetailsService {
                 .email(signUpForm.getEmail())
                 .password(passwordEncoder.encode(signUpForm.getPassword()))
                 .favoriteSubjectPostingByWeb(false)
-                .favoriteUserPostingByWeb(false)
+                .followingAccountPostingByWeb(false)
                 .build();
 
         newAccount.generateEmailCheckToken();
@@ -198,5 +200,51 @@ public class AccountService implements UserDetailsService {
         });
 
 
+    }
+
+    public Set<Account> getFollowers(Account account) {
+
+        Account findAccount = accountRepository.findAccountWithFollowersById(account.getId());
+
+        accountVerified(findAccount);
+
+        return findAccount.getFollowers();
+    }
+
+    private void accountVerified(Account findAccount) {
+        if (findAccount == null) {
+            throw new IllegalIdentifierException("해당 유저는 존재하지 않습니다.");
+        }
+    }
+
+    public Set<Account> getFollowings(Account account) {
+        Account findAccount = accountRepository.findAccountWithFollowingsById(account.getId());
+
+        accountVerified(findAccount);
+
+        return findAccount.getFollowings();
+
+    }
+
+    public boolean getFollowingsContain(Account account, Account findAccount) {
+        Account newAccount = accountRepository.findAccountWithFollowingsById(account.getId());
+
+        return newAccount.getFollowings().contains(findAccount);
+    }
+
+    public void requestFollowing(Long currentAccountId, Account findAccount) {
+
+        Account currentAccount = accountRepository.findAccountWithFollowingsById(currentAccountId);
+
+        findAccount.getFollowers().add(currentAccount);
+        currentAccount.getFollowings().add(findAccount);
+
+    }
+
+    public void deleteFollowing(Long currentAccountId, Account findAccount) {
+        Account currentAccount = accountRepository.findAccountWithFollowingsById(currentAccountId);
+
+        findAccount.getFollowers().remove(currentAccount);
+        currentAccount.getFollowings().remove(findAccount);
     }
 }

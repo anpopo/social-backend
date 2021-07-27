@@ -11,6 +11,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+@NamedEntityGraph(name = "Account.withFollowings", attributeNodes = {
+        @NamedAttributeNode("followings")
+})
+@NamedEntityGraph(name = "Account.withFollowers", attributeNodes = {
+        @NamedAttributeNode("followers")
+})
+
+
 @Getter @Builder
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor
@@ -45,17 +53,26 @@ public class Account {
 
     private String bio;
 
-    // TODO 관심사 등록하기
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
     private Set<AccountTag> accountTags = new HashSet<>();
 
-    // TODO 관심 유저
+    @OneToMany(fetch = FetchType.LAZY)
+    private Set<Account> followers = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private Set<Account> followings = new HashSet<>();
+
+//    @OneToMany(fetch = FetchType.LAZY)
+//    private Set<Account> followingRequestPending = new HashSet<>();
+//
+//    @OneToMany(fetch = FetchType.LAZY)
+//    private Set<Account> followingRecievePending = new HashSet<>();
 
     @Lob @Basic(fetch = FetchType.EAGER)
     private String profileImage;
 
-    // 관심 있는 유저가 포스팅을 한 경우 알람 설정
-    private boolean favoriteUserPostingByWeb;
+    // 팔로잉 한 계정의 포스팅이 올라온 경우의 알람 설정
+    private boolean followingAccountPostingByWeb;
 
     // 관심 있는 주제로 포스팅이 올라온 경우 알람 설정
     private boolean favoriteSubjectPostingByWeb;
@@ -100,7 +117,7 @@ public class Account {
     }
 
     public void updateNotifications(NotificationForm notificationForm) {
-        this.favoriteUserPostingByWeb = notificationForm.isFavoriteUserPostingByWeb();
+        this.followingAccountPostingByWeb = notificationForm.isFollowingAccountPostingByWeb();
         this.favoriteSubjectPostingByWeb = notificationForm.isFavoriteSubjectPostingByWeb();
     }
 
