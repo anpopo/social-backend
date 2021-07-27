@@ -56,10 +56,10 @@ public class Account {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
     private Set<AccountTag> accountTags = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Account> followers = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Account> followings = new HashSet<>();
 
 //    @OneToMany(fetch = FetchType.LAZY)

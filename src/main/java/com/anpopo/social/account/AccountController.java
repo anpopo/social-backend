@@ -194,6 +194,19 @@ public class AccountController {
         return "redirect:/profile/@" + nickname;
     }
 
+    @GetMapping("/following/settings/{nickname}/delete")
+    public String followingDeleteFromSettings(@CurrentUser Account account, @PathVariable String nickname, Model model) {
+        Account findAccount = accountRepository.findAccountWithFollowersByNickname(nickname);
+
+        accountVerified(findAccount);
+
+        selfFollowCheck(account, findAccount);
+
+        accountService.deleteFollowing(account.getId(), findAccount);
+
+        return "redirect:/settings/followings";
+    }
+
     private void accountVerified(Account findAccount) {
         if (findAccount == null) {
             throw new IllegalArgumentException("해당하는 유저가 존재하지 않습니다.");

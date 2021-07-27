@@ -20,7 +20,6 @@
                 <div class="row my-3 d-flex px-4">
                     <h2 class="display-4 mr-auto" th:text="${findAccount.nickname}" style="font-weight: bold;">nickname</h2>
                     <div th:if="${!isOwner}" class="align-self-center"  th:with="findAccount=${findAccount}">
-                        <!--내 팔로우에 없는 계정이라면 if 조건절 추가해야함-->
                         <a th:if="${!isFollowing}" class="nav-link btn btn-outline-primary" style="border: none;" th:href="@{|/following/${findAccount.nickname}/request|}">
                             <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 신청
                         </a>
@@ -30,7 +29,6 @@
 <!--                            <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 수락 취소하기-->
 <!--                        </a>-->
 
-                        <!--내 팔로우에 있는 계정이라면 if 조건절 추가해야함 -->
                         <a th:if="${isFollowing}" class="nav-link btn btn-outline-danger" style="border: none;" th:href="@{|/following/${findAccount.nickname}/delete|}">
                             <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 끊기
                         </a>
@@ -50,7 +48,7 @@
             <div class="col-2">
                 <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                     <a th:if="${isOwner}" class="nav-link" th:classappend="${isOwner} ? 'active'" id="v-pills-intro-tab" data-toggle="pill" href="#v-pills-profile"
-                       role="tab" aria-controls="v-pills-profile" aria-selected="true">프로필</a>
+                       role="tab" aria-controls="v-pills-profile" aria-selected="true" th:aria-selected="${isOwner}">프로필</a>
                     <a class="nav-link" id="v-pills-follower-tab" th:classappend="${!isOwner} ? 'active'" data-toggle="pill" href="#v-pills-follower"
                        role="tab" aria-controls="v-pills-posting" aria-selected="false" th:aria-selected="${!isOwner}">Follower</a>
                     <a class="nav-link" id="v-pills-following-tab" data-toggle="pill" href="#v-pills-following"
@@ -62,7 +60,7 @@
 
             <div class="col-8">
                 <div class="tab-content" id="v-pills-tabContent">
-                    <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                    <div class="tab-pane fade" th:classappend="${isOwner} ? 'active show'" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-home-tab">
                         <p th:if="${isOwner}">
                             <span style="font-size: 20px;">
                                 <i class="fa fa-envelope-o col-1"></i>
@@ -82,7 +80,7 @@
                             <a class="btn btn-outline-primary" href="#" th:href="@{/settings/profile}">계정 정보 관리</a>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="v-pills-follower" role="tabpanel" aria-labelledby="v-pills-follower-tab">
+                    <div class="tab-pane fade" th:classappend="${!isOwner} ? 'active show'" id="v-pills-follower" role="tabpanel" aria-labelledby="v-pills-follower-tab">
                         follower
                     </div>
                     <div class="tab-pane fade" id="v-pills-following" role="tabpanel" aria-labelledby="v-pills-following-tab">
