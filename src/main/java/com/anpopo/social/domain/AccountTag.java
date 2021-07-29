@@ -1,5 +1,6 @@
 package com.anpopo.social.domain;
 
+import com.anpopo.social.tag.Tag;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

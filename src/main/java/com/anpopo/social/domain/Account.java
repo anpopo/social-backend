@@ -1,15 +1,17 @@
 package com.anpopo.social.domain;
 
+import com.anpopo.social.follow.Follower;
+import com.anpopo.social.follow.Following;
+import com.anpopo.social.post.Post;
 import com.anpopo.social.settings.form.NotificationForm;
 import com.anpopo.social.settings.form.ProfileForm;
 import lombok.*;
-import org.apache.tomcat.jni.Local;
 
 import javax.persistence.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @NamedEntityGraph(name = "Account.withFollowings", attributeNodes = {
         @NamedAttributeNode("followings")
@@ -62,14 +64,11 @@ public class Account {
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Account> followings = new HashSet<>();
 
-//    @OneToMany(fetch = FetchType.LAZY)
-//    private Set<Account> followingRequestPending = new HashSet<>();
-//
-//    @OneToMany(fetch = FetchType.LAZY)
-//    private Set<Account> followingRecievePending = new HashSet<>();
-
     @Lob @Basic(fetch = FetchType.EAGER)
     private String profileImage;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Post> posts = new ArrayList<>();
 
     // 팔로잉 한 계정의 포스팅이 올라온 경우의 알람 설정
     private boolean followingAccountPostingByWeb;
@@ -123,5 +122,13 @@ public class Account {
 
     public void updateAccountInfo(String nickname) {
         this.nickname = nickname;
+    }
+
+    public String getEncodedNickname() {
+        return URLEncoder.encode(this.nickname, StandardCharsets.UTF_8);
+    }
+
+    public void savePost(Post post) {
+        this.posts.add(post);
     }
 }

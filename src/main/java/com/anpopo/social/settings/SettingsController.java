@@ -4,7 +4,7 @@ import com.anpopo.social.account.AccountRepository;
 import com.anpopo.social.account.AccountService;
 import com.anpopo.social.account.CurrentUser;
 import com.anpopo.social.domain.Account;
-import com.anpopo.social.domain.Tag;
+import com.anpopo.social.tag.Tag;
 import com.anpopo.social.settings.form.*;
 import com.anpopo.social.settings.validator.AccountFormValidator;
 import com.anpopo.social.settings.validator.PasswordFormValidator;

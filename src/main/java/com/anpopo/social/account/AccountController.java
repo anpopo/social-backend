@@ -178,7 +178,7 @@ public class AccountController {
 
         accountService.requestFollowing(account.getId(), findAccount);
 
-        return "redirect:/profile/@" + nickname;
+        return "redirect:/profile/@" + findAccount.getEncodedNickname();
     }
 
     @GetMapping("/following/{nickname}/delete")
@@ -191,7 +191,7 @@ public class AccountController {
 
         accountService.deleteFollowing(account.getId(), findAccount);
 
-        return "redirect:/profile/@" + nickname;
+        return "redirect:/profile/@" + findAccount.getEncodedNickname();
     }
 
     @GetMapping("/following/settings/{nickname}/delete")

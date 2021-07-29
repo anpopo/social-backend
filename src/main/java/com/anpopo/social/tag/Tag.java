@@ -1,5 +1,6 @@
-package com.anpopo.social.domain;
+package com.anpopo.social.tag;
 
+import com.anpopo.social.domain.Account;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
