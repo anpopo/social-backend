@@ -7,5 +7,5 @@ import lombok.NoArgsConstructor;
 public class NotificationForm {
 
     private boolean followingAccountPostingByWeb;
-    private boolean favoriteSubjectPostingByWeb;
+    private boolean interestSubjectPostingByWeb;
 }

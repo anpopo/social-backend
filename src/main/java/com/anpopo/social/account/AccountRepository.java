@@ -4,7 +4,9 @@ import com.anpopo.social.domain.Account;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import javax.persistence.Entity;
 import java.util.Collection;
+import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
     boolean existsByEmail(String email);
@@ -15,15 +17,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Account findByNickname(String emailOrNickname);
 
-    @EntityGraph(value = "Account.withFollowings", type = EntityGraph.EntityGraphType.FETCH)
-    Account findAccountWithFollowingsById(Long id);
-
-    @EntityGraph(value = "Account.withFollowings", type = EntityGraph.EntityGraphType.FETCH)
-    Account findAccountWithFollowersById(Long id);
-
-    @EntityGraph(value = "Account.withFollowings", type = EntityGraph.EntityGraphType.FETCH)
-    Account findAccountWithFollowingsByNickname(String nickname);
-
-    @EntityGraph(value = "Account.withFollowings", type = EntityGraph.EntityGraphType.FETCH)
-    Account findAccountWithFollowersByNickname(String nickname);
+    @EntityGraph("Account.withInterest")
+    Optional<Account> findAccountWithInterestById(Long id);
 }

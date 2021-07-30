@@ -18,7 +18,9 @@
                 </div>
 
                 <div class="row">
-                    <h2 class="col-sm-12" th:text="${profileForm.nickname}">nickname</h2>
+                    <a th:href="@{|/profile/@${profileForm.nickname}|}">
+                        <h2 class="col-sm-12" th:text="${profileForm.nickname}">nickname</h2>
+                    </a>
                 </div>
 
                 <div class="row mt-3">

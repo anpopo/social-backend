@@ -2,14 +2,12 @@ package com.anpopo.social.account;
 
 import com.anpopo.social.account.form.SignUpForm;
 import com.anpopo.social.domain.Account;
-import com.anpopo.social.domain.AccountTag;
-import com.anpopo.social.tag.Tag;
+import com.anpopo.social.interest.Interest;
 import com.anpopo.social.settings.form.NotificationForm;
 import com.anpopo.social.settings.form.ProfileForm;
 import com.anpopo.social.tag.TagRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,11 +20,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import javax.swing.text.html.Option;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -37,7 +35,6 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
-    private final AccountTagRepository accountTagRepository;
     private final TagRepository tagRepository;
 
     public void signUpProcess(SignUpForm signUpForm) {
@@ -107,12 +104,14 @@ public class AccountService implements UserDetailsService {
     }
 
     private Account createAndSaveUserAccount(SignUpForm signUpForm) {
+        // builder 패턴 사용시 기본값이 null 로 들어감.
         Account newAccount = Account.builder()
                 .nickname(signUpForm.getNickname())
                 .email(signUpForm.getEmail())
                 .password(passwordEncoder.encode(signUpForm.getPassword()))
-                .favoriteSubjectPostingByWeb(false)
+                .interestSubjectPostingByWeb(false)
                 .followingAccountPostingByWeb(false)
+                .posts(new ArrayList<>())
                 .build();
 
         newAccount.generateEmailCheckToken();
@@ -153,97 +152,18 @@ public class AccountService implements UserDetailsService {
 
     }
 
-    public Set<Tag> getTag(Account account) {
+    public Set<Interest> getInterest(Account account) {
+        Optional<Account> findAccount = accountRepository.findAccountWithInterestById(account.getId());
+        return findAccount.orElseThrow(() -> new IllegalArgumentException("유효하지 않은 계정 정보 입니다.")).getInterests();
+    }
 
+    public void addInterest(Account account, Interest interest) {
         Optional<Account> findAccount = accountRepository.findById(account.getId());
-
-        return findAccount.orElseThrow(() -> new IllegalArgumentException("계정이 존재하지 않습니다."))
-                .getAccountTags().stream().map(AccountTag::getTag)
-                .collect(Collectors.toSet());
-
+        findAccount.ifPresent(a -> a.getInterests().add(interest));
     }
 
-    public void addAccountTag(Account account, String title) {
+    public void removeInterest(Account account, Interest interest) {
         Optional<Account> findAccount = accountRepository.findById(account.getId());
-
-        findAccount.ifPresent(a -> {
-            Tag tag = tagRepository.findByTitle(title)
-                    .orElseGet(
-                            () -> tagRepository.save(
-                                    Tag.builder()
-                                            .title(title)
-                                            .account(a)
-                                            .createdAt(LocalDateTime.now())
-                                            .build()
-                            )
-                    );
-
-            a.getAccountTags().add(
-                    accountTagRepository.save(
-                            AccountTag.builder()
-                                    .account(a)
-                                    .tag(tag)
-                                    .build())
-            );
-        });
-    }
-
-    public void removeTag(Account account, Tag tag) {
-        Optional<Account> findAccount = accountRepository.findById(account.getId());
-
-        findAccount.ifPresent(a -> {
-            AccountTag byAccountAndTag = accountTagRepository.findByAccountAndTag(account, tag);
-
-            a.getAccountTags().remove(byAccountAndTag);
-            accountTagRepository.delete(byAccountAndTag);
-        });
-
-
-    }
-
-    public Set<Account> getFollowers(Account account) {
-
-        Account findAccount = accountRepository.findAccountWithFollowersById(account.getId());
-
-        accountVerified(findAccount);
-
-        return findAccount.getFollowers();
-    }
-
-    private void accountVerified(Account findAccount) {
-        if (findAccount == null) {
-            throw new IllegalIdentifierException("해당 유저는 존재하지 않습니다.");
-        }
-    }
-
-    public Set<Account> getFollowings(Account account) {
-        Account findAccount = accountRepository.findAccountWithFollowingsById(account.getId());
-
-        accountVerified(findAccount);
-
-        return findAccount.getFollowings();
-
-    }
-
-    public boolean getFollowingsContain(Account account, Account findAccount) {
-        Account newAccount = accountRepository.findAccountWithFollowingsById(account.getId());
-
-        return newAccount.getFollowings().contains(findAccount);
-    }
-
-    public void requestFollowing(Long currentAccountId, Account findAccount) {
-
-        Account currentAccount = accountRepository.findAccountWithFollowingsById(currentAccountId);
-
-        findAccount.getFollowers().add(currentAccount);
-        currentAccount.getFollowings().add(findAccount);
-
-    }
-
-    public void deleteFollowing(Long currentAccountId, Account findAccount) {
-        Account currentAccount = accountRepository.findAccountWithFollowingsById(currentAccountId);
-
-        findAccount.getFollowers().remove(currentAccount);
-        currentAccount.getFollowings().remove(findAccount);
+        findAccount.ifPresent(a -> a.getInterests().remove(interest));
     }
 }

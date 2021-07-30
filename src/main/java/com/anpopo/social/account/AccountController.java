@@ -106,12 +106,11 @@ public class AccountController {
         if (byNickname == null) {
             throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
         }
-        boolean isFollowing = accountService.getFollowingsContain(account, byNickname);
 
         model.addAttribute("account", account);
         model.addAttribute( "findAccount", byNickname);
         model.addAttribute("isOwner", byNickname.equals(account));
-        model.addAttribute("isFollowing", isFollowing);
+        model.addAttribute("isFollowing", false);
 
         return "account/profile";
     }
@@ -167,56 +166,4 @@ public class AccountController {
 
         return "account/email-logged-in";
     }
-
-    @GetMapping("/following/{nickname}/request")
-    public String followingRequest(@CurrentUser Account account, @PathVariable String nickname, Model model) {
-        Account findAccount = accountRepository.findAccountWithFollowersByNickname(nickname);
-
-        accountVerified(findAccount);
-
-        selfFollowCheck(account, findAccount);
-
-        accountService.requestFollowing(account.getId(), findAccount);
-
-        return "redirect:/profile/@" + findAccount.getEncodedNickname();
-    }
-
-    @GetMapping("/following/{nickname}/delete")
-    public String followingDelete(@CurrentUser Account account, @PathVariable String nickname, Model model) {
-        Account findAccount = accountRepository.findAccountWithFollowersByNickname(nickname);
-
-        accountVerified(findAccount);
-
-        selfFollowCheck(account, findAccount);
-
-        accountService.deleteFollowing(account.getId(), findAccount);
-
-        return "redirect:/profile/@" + findAccount.getEncodedNickname();
-    }
-
-    @GetMapping("/following/settings/{nickname}/delete")
-    public String followingDeleteFromSettings(@CurrentUser Account account, @PathVariable String nickname, Model model) {
-        Account findAccount = accountRepository.findAccountWithFollowersByNickname(nickname);
-
-        accountVerified(findAccount);
-
-        selfFollowCheck(account, findAccount);
-
-        accountService.deleteFollowing(account.getId(), findAccount);
-
-        return "redirect:/settings/followings";
-    }
-
-    private void accountVerified(Account findAccount) {
-        if (findAccount == null) {
-            throw new IllegalArgumentException("해당하는 유저가 존재하지 않습니다.");
-        }
-    }
-
-    private void selfFollowCheck(@CurrentUser Account account, Account findAccount) {
-        if (account.equals(findAccount)) {
-            throw new IllegalArgumentException("자신에게 팔로우를 신청할 수 없습니다.");
-        }
-    }
-
 }

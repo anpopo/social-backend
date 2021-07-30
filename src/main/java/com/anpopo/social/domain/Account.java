@@ -2,10 +2,13 @@ package com.anpopo.social.domain;
 
 import com.anpopo.social.follow.Follower;
 import com.anpopo.social.follow.Following;
+import com.anpopo.social.interest.Interest;
 import com.anpopo.social.post.Post;
 import com.anpopo.social.settings.form.NotificationForm;
 import com.anpopo.social.settings.form.ProfileForm;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.net.URLEncoder;
@@ -13,17 +16,16 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@NamedEntityGraph(name = "Account.withFollowings", attributeNodes = {
-        @NamedAttributeNode("followings")
-})
-@NamedEntityGraph(name = "Account.withFollowers", attributeNodes = {
-        @NamedAttributeNode("followers")
+@NamedEntityGraph(name = "Account.withInterest", attributeNodes = {
+        @NamedAttributeNode("interests")
 })
 
 
 @Getter @Builder
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor
+@SQLDelete(sql = "UPDATE account SET deleted = true WHERE id=?")
+@Where(clause = "deleted=false")
 @Entity
 public class Account {
 
@@ -55,26 +57,22 @@ public class Account {
 
     private String bio;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
-    private Set<AccountTag> accountTags = new HashSet<>();
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Account> followers = new HashSet<>();
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Account> followings = new HashSet<>();
-
     @Lob @Basic(fetch = FetchType.EAGER)
     private String profileImage;
 
+    private boolean deleted = false;
+
     @OneToMany(fetch = FetchType.LAZY)
     private List<Post> posts = new ArrayList<>();
+
+    @ManyToMany
+    private Set<Interest> interests = new HashSet<>();
 
     // 팔로잉 한 계정의 포스팅이 올라온 경우의 알람 설정
     private boolean followingAccountPostingByWeb;
 
     // 관심 있는 주제로 포스팅이 올라온 경우 알람 설정
-    private boolean favoriteSubjectPostingByWeb;
+    private boolean interestSubjectPostingByWeb;
 
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
@@ -117,7 +115,7 @@ public class Account {
 
     public void updateNotifications(NotificationForm notificationForm) {
         this.followingAccountPostingByWeb = notificationForm.isFollowingAccountPostingByWeb();
-        this.favoriteSubjectPostingByWeb = notificationForm.isFavoriteSubjectPostingByWeb();
+        this.interestSubjectPostingByWeb = notificationForm.isInterestSubjectPostingByWeb();
     }
 
     public void updateAccountInfo(String nickname) {

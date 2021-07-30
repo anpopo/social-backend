@@ -26,7 +26,7 @@ public class PostService {
     public void savePost(Account account, PostForm postForm) {
         Post post = createPost(postForm, account);
 
-        Set<Tag> tags = tagRepository.findAllByTitle(Arrays.stream(postForm.getTags().split(",")).filter(t -> !t.isBlank()).collect(Collectors.toList()));
+        Set<Tag> tags = tagRepository.findAllByTitleIn(Arrays.stream(postForm.getTags().split(",")).filter(t -> !t.isBlank()).collect(Collectors.toList()));
         post.saveTags(tags);
         account.savePost(post);
 
@@ -48,7 +48,7 @@ public class PostService {
 
     public void updatePost(Post post, PostForm postForm) {
 
-        Set<Tag> tags = tagRepository.findAllByTitle(Arrays.stream(postForm.getTags().split(",")).filter(t -> !t.isBlank()).collect(Collectors.toList()));
+        Set<Tag> tags = tagRepository.findAllByTitleIn(Arrays.stream(postForm.getTags().split(",")).filter(t -> !t.isBlank()).collect(Collectors.toList()));
 
         post.updatePost(postForm.getContext(), tags);
 

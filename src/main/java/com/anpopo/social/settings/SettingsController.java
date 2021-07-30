@@ -4,6 +4,8 @@ import com.anpopo.social.account.AccountRepository;
 import com.anpopo.social.account.AccountService;
 import com.anpopo.social.account.CurrentUser;
 import com.anpopo.social.domain.Account;
+import com.anpopo.social.interest.Interest;
+import com.anpopo.social.interest.InterestRepository;
 import com.anpopo.social.tag.Tag;
 import com.anpopo.social.settings.form.*;
 import com.anpopo.social.settings.validator.AccountFormValidator;
@@ -37,8 +39,8 @@ public class SettingsController {
     private final PasswordFormValidator passwordValidator;
     private final AccountFormValidator accountFormValidator;
     private final ObjectMapper objectMapper;
-    private final TagRepository tagRepository;
     private final AccountRepository accountRepository;
+    private final InterestRepository interestRepository;
 
     @InitBinder("passwordForm")
     public void initPasswordValidator(WebDataBinder webDataBinder) {
@@ -110,7 +112,7 @@ public class SettingsController {
 
         NotificationForm notificationForm = new NotificationForm();
         notificationForm.setFollowingAccountPostingByWeb(account.isFollowingAccountPostingByWeb());
-        notificationForm.setFavoriteSubjectPostingByWeb(account.isFavoriteSubjectPostingByWeb());
+        notificationForm.setInterestSubjectPostingByWeb(account.isInterestSubjectPostingByWeb());
 
         model.addAttribute(notificationForm);
 
@@ -156,75 +158,43 @@ public class SettingsController {
         return "redirect:/settings/account";
     }
 
-    @GetMapping("/tags")
-    public String updateTagsView(@CurrentUser Account account, Model model) throws JsonProcessingException {
+    @GetMapping("/interest")
+    public String updateInterestView(@CurrentUser Account account, Model model) throws JsonProcessingException {
         model.addAttribute(account);
 
-        Set<Tag> tags = accountService.getTag(account);
+        Set<Interest> interests = accountService.getInterest(account);
 
-        model.addAttribute("tags", tags.stream().map(Tag::getTitle).sorted().collect(Collectors.toList()));
+        model.addAttribute("interests", interests.stream().map(Interest::getInterest).collect(Collectors.toList()));
 
-        List<String> allTags = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
+        List<String> allInterest = interestRepository.findAll().stream()
+                .map(Interest::getInterest)
+                .sorted()
+                .collect(Collectors.toList());
 
-        model.addAttribute("whiteList", objectMapper.writeValueAsString(allTags));
+        model.addAttribute("whiteList", objectMapper.writeValueAsString(allInterest));
 
-        return "settings/tags";
+        return "settings/interest";
     }
 
     @ResponseBody
-    @PostMapping("/tags/add")
-    public ResponseEntity addTags(@CurrentUser Account account, @RequestBody TagForm tagForm) {
-        String title = tagForm.getTagTitle();
-
-        accountService.addAccountTag(account, title);
-
-        return ResponseEntity.ok().build();
-    }
-
-    @ResponseBody
-    @PostMapping("/tags/remove")
-    public ResponseEntity removeTag(@CurrentUser Account account, @RequestBody TagForm tagForm) {
-        String title = tagForm.getTagTitle();
-
-        Optional<Tag> tag = tagRepository.findByTitle(title);
-
-        if (tag.isEmpty()) {
+    @PostMapping("/interest/add")
+    public ResponseEntity addInterest(@CurrentUser Account account, @RequestBody InterestForm interestForm) {
+        Interest interest = interestRepository.findByInterest(interestForm.getInterest());
+        if (interest == null) {
             return ResponseEntity.badRequest().build();
         }
-        accountService.removeTag(account, tag.get());
+        accountService.addInterest(account, interest);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/followers")
-    public String followersView(@CurrentUser Account account, Model model) throws JsonProcessingException {
-        model.addAttribute(account);
-        Set<Account> followers = accountService.getFollowers(account);
-
-        model.addAttribute(
-                "followers",
-                followers.stream()
-                    .map(a -> new FollowForm(a.getId(), a.getNickname(), a.getProfileImage()))
-                    .collect(Collectors.toList()));
-
-        model.addAttribute("numberOfFollowers", followers.size());
-
-        return "settings/followers";
+    @ResponseBody
+    @PostMapping("/interest/remove")
+    public ResponseEntity removeInterest(@CurrentUser Account account, @RequestBody InterestForm interestForm) {
+        Interest interest = interestRepository.findByInterest(interestForm.getInterest());
+        if (interest == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        accountService.removeInterest(account, interest);
+        return ResponseEntity.ok().build();
     }
-
-    @GetMapping("/followings")
-    public String followingsView(@CurrentUser Account account, Model model) throws JsonProcessingException {
-        model.addAttribute(account);
-        Set<Account> followings = accountService.getFollowings(account);
-
-        model.addAttribute(
-                "followings",
-                followings.stream()
-                        .map(a -> new FollowForm(a.getId(), a.getNickname(), a.getProfileImage()))
-                        .collect(Collectors.toList()));
-
-        model.addAttribute("numberOfFollowings", followings.size());
-
-        return "settings/followings";
-    }
-
 }
