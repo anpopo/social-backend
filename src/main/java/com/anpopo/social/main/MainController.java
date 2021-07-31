@@ -1,6 +1,6 @@
 package com.anpopo.social.main;
 
-import com.anpopo.social.domain.Account;
+import com.anpopo.social.account.domain.Account;
 import com.anpopo.social.account.CurrentUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;

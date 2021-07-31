@@ -1,4 +1,4 @@
-package com.anpopo.social.domain;
+package com.anpopo.social.account.domain;
 
 import lombok.Getter;
 import lombok.Setter;

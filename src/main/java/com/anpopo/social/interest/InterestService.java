@@ -27,13 +27,9 @@ public class InterestService {
             List<Interest> interestList = Files.readAllLines(resource.getFile().toPath(), StandardCharsets.UTF_8).stream()
                     .map(line -> {
                         String[] split = line.split(",");
-                        return Interest.builder()
-                                .interest(split[0])
-                                .deleted(false)
-                                .numberOfAccount(0)
-                                .hotInterest(false)
-                                .superHotInterest(false)
-                                .build();
+                        Interest interest = new Interest();
+                        interest.createNewInterest(split[0]);
+                        return interest;
                     })
                     .collect(Collectors.toList());
 

@@ -1,9 +1,8 @@
 package com.anpopo.social.settings.validator;
 
-import com.anpopo.social.account.AccountRepository;
+import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.settings.form.AccountForm;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;

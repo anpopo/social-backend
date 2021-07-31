@@ -1,7 +1,5 @@
-package com.anpopo.social.domain;
+package com.anpopo.social.account.domain;
 
-import com.anpopo.social.follow.Follower;
-import com.anpopo.social.follow.Following;
 import com.anpopo.social.interest.Interest;
 import com.anpopo.social.post.Post;
 import com.anpopo.social.settings.form.NotificationForm;
@@ -9,6 +7,7 @@ import com.anpopo.social.settings.form.ProfileForm;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.data.jpa.repository.EntityGraph;
 
 import javax.persistence.*;
 import java.net.URLEncoder;
@@ -20,10 +19,17 @@ import java.util.*;
         @NamedAttributeNode("interests")
 })
 
+@NamedEntityGraph(name = "Account.withFollowers", attributeNodes = {
+        @NamedAttributeNode("followers")
+})
 
-@Getter @Builder
+@NamedEntityGraph(name = "Account.withFollowing", attributeNodes = {
+        @NamedAttributeNode("following")
+})
+
+@Getter
 @EqualsAndHashCode(of = "id")
-@NoArgsConstructor @AllArgsConstructor
+@NoArgsConstructor
 @SQLDelete(sql = "UPDATE account SET deleted = true WHERE id=?")
 @Where(clause = "deleted=false")
 @Entity
@@ -41,13 +47,13 @@ public class Account {
     @Column(length = 1000)
     private String password;
 
-    private boolean emailVerified;
+    private boolean emailVerified = false;
 
     private String emailCheckToken;
 
     private LocalDateTime emailCheckTokenGeneratedAt;
 
-    private boolean cellPhoneVerified;
+    private boolean cellPhoneVerified = false;
 
     private String cellPhoneCheckToken;
 
@@ -65,14 +71,39 @@ public class Account {
     @OneToMany(fetch = FetchType.LAZY)
     private List<Post> posts = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Interest> interests = new HashSet<>();
 
     // 팔로잉 한 계정의 포스팅이 올라온 경우의 알람 설정
-    private boolean followingAccountPostingByWeb;
+    private boolean followingAccountPostingByWeb = false;
 
     // 관심 있는 주제로 포스팅이 올라온 경우 알람 설정
-    private boolean interestSubjectPostingByWeb;
+    private boolean interestSubjectPostingByWeb = false;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(name = "user_relations",
+            joinColumns = @JoinColumn(name = "followed_id"),
+            inverseJoinColumns = @JoinColumn(name = "follower_id"))
+    private Set<Account> followers = new HashSet<>();
+
+    @ManyToMany(mappedBy = "followers", fetch = FetchType.LAZY)
+    private Set<Account> following = new HashSet<>();
+
+    public void addFollower(Account follower) {
+        followers.add(follower);
+        follower.following.add(this);
+    }
+
+    public void addFollowing(Account followed) {
+        followed.addFollower(this);
+    }
+
+    private boolean isAccepted;
+    private boolean isFollower;
+    private boolean isFollowing;
+
+    private LocalDateTime followRequestAt;
+    private LocalDateTime acceptedAt;
 
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
@@ -128,5 +159,11 @@ public class Account {
 
     public void savePost(Post post) {
         this.posts.add(post);
+    }
+
+    public void createNewAccount(String email, String nickname, String password) {
+        this.email = email;
+        this.nickname = nickname;
+        this.password = password;
     }
 }

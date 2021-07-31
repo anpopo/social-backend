@@ -1,14 +1,13 @@
 package com.anpopo.social.post;
 
-import com.anpopo.social.account.AccountRepository;
-import com.anpopo.social.domain.Account;
+import com.anpopo.social.account.repository.AccountRepository;
+import com.anpopo.social.account.domain.Account;
 import com.anpopo.social.tag.Tag;
 import com.anpopo.social.tag.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -35,11 +34,13 @@ public class PostService {
     }
 
     private Post createPost(PostForm postForm, Account account) {
-        return Post.builder()
-                .context(postForm.getContext())
-                .postedAt(LocalDateTime.now())
-                .account(account)
-                .build();
+
+        Post post = new Post();
+
+        post.createNewPost(postForm.getContext(), account);
+
+        return post;
+
     }
 
     public List<Post> getPostsWithTags(Account account) {

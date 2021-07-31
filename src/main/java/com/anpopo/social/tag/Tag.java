@@ -1,12 +1,10 @@
 package com.anpopo.social.tag;
 
-import com.anpopo.social.domain.Account;
+import com.anpopo.social.account.domain.Account;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
-import javax.jdo.annotations.Join;
 import javax.persistence.*;
-import java.lang.reflect.Member;
 import java.time.LocalDateTime;
 
 @Getter @Builder @EqualsAndHashCode(of = "id")

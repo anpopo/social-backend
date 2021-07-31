@@ -20,18 +20,22 @@
                 <div class="row my-3 d-flex px-4">
                     <h2 class="display-4 mr-auto" th:text="${findAccount.nickname}" style="font-weight: bold;">nickname</h2>
                     <div th:if="${!isOwner}" class="align-self-center"  th:with="findAccount=${findAccount}">
-                        <a th:if="${!isFollowing}" class="nav-link btn btn-outline-primary" style="border: none;" th:href="@{|/following/${findAccount.nickname}/request|}">
-                            <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 신청
-                        </a>
+                        <form th:action="@{|/follow/${findAccount.nickname}/request|}" method="post">
+                            <div class="form-group mb-2">
+                                <button type="submit" class="btn btn-outline-primary mb-2">
+                                    <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 신청
+                                </button>
+                            </div>
+                        </form>
 
-<!--                        &lt;!&ndash; 이미 팔로우 신청을 했으면 if 조건절 추가해야함 &ndash;&gt;-->
+<!--                        &lt;!&ndash; 이미 팔로우 신청을 했으면 &ndash;&gt;-->
 <!--                        <a class="nav-link btn btn-outline-info" style="border: none;" th:href="@{|/following/${account.nickname}/cancel|}">-->
 <!--                            <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 수락 취소하기-->
 <!--                        </a>-->
 
-                        <a th:if="${isFollowing}" class="nav-link btn btn-outline-danger" style="border: none;" th:href="@{|/following/${findAccount.nickname}/delete|}">
-                            <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 끊기
-                        </a>
+<!--                        <a th:if="${isFollowing}" class="nav-link btn btn-outline-danger" style="border: none;" th:href="@{|/following/${findAccount.nickname}/delete|}">-->
+<!--                            <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 끊기-->
+<!--                        </a>-->
                     </div>
                 </div>
                 <div class="mt-3 lead">

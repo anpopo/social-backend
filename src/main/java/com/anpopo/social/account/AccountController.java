@@ -1,8 +1,9 @@
 package com.anpopo.social.account;
 
+import com.anpopo.social.account.domain.Account;
 import com.anpopo.social.account.form.SignUpForm;
+import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.account.validator.SignUpFormValidator;
-import com.anpopo.social.domain.Account;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.net.URLEncoder;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -99,22 +101,6 @@ public class AccountController {
         return "redirect:/";
     }
 
-    @GetMapping("/profile/@{nickname}")
-    public String viewProfile(@PathVariable String nickname, @CurrentUser Account account, Model model) {
-        Account byNickname = accountRepository.findByNickname(nickname);
-
-        if (byNickname == null) {
-            throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
-        }
-
-        model.addAttribute("account", account);
-        model.addAttribute( "findAccount", byNickname);
-        model.addAttribute("isOwner", byNickname.equals(account));
-        model.addAttribute("isFollowing", false);
-
-        return "account/profile";
-    }
-
     @GetMapping("/email-login")
     public String emailLoginView(@CurrentUser Account account) {
         if (account != null) {
@@ -165,5 +151,35 @@ public class AccountController {
         model.addAttribute(findAccount);
 
         return "account/email-logged-in";
+    }
+
+    @GetMapping("/profile/@{nickname}")
+    public String viewProfile(@PathVariable String nickname, @CurrentUser Account account, Model model) {
+        Account findAccount = accountRepository.findByNickname(nickname);
+
+        if (findAccount == null) {
+            throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
+        }
+
+        model.addAttribute("account", account);
+        model.addAttribute( "findAccount", findAccount);
+        model.addAttribute("isOwner", findAccount.equals(account));
+        model.addAttribute("isFollowing", false);
+
+        return "account/profile";
+    }
+
+    @PostMapping("/follow/${nickname}/request")
+    public String followRequest(@CurrentUser Account account, @PathVariable String nickname, RedirectAttributes redirectAttributes) {
+        Account findAccount = accountRepository.findByNickname(nickname);
+        // 유효한 닉네임인지 검사
+        if (account == null || findAccount.equals(account)) {
+            throw new IllegalArgumentException("팔로우 신청한 유저를 확인해주세요.");
+        }
+
+        accountService.followingRequest(findAccount, account);
+
+        return "redirect:/profile/@" + findAccount.getEncodedNickname();
+
     }
 }

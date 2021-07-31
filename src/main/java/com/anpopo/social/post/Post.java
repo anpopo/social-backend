@@ -1,19 +1,17 @@
 package com.anpopo.social.post;
 
-import com.anpopo.social.domain.Account;
+import com.anpopo.social.account.domain.Account;
 import com.anpopo.social.tag.Tag;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.hibernate.annotations.Where;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-@Getter @Builder
+@Getter
+@NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Entity
 public class Post {
@@ -42,6 +40,11 @@ public class Post {
         this.context = context;
         this.tags.clear();
         this.tags = tags;
+    }
+
+    public void createNewPost(String context, Account account) {
+        this.context = context;
+        this.account = account;
     }
 
     // TODO 댓글 기능 나중에 기릿

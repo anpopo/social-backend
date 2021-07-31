@@ -1,7 +1,8 @@
 package com.anpopo.social.account;
 
+import com.anpopo.social.account.domain.Account;
 import com.anpopo.social.account.form.SignUpForm;
-import com.anpopo.social.domain.Account;
+import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.interest.Interest;
 import com.anpopo.social.settings.form.NotificationForm;
 import com.anpopo.social.settings.form.ProfileForm;
@@ -20,8 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -105,14 +104,13 @@ public class AccountService implements UserDetailsService {
 
     private Account createAndSaveUserAccount(SignUpForm signUpForm) {
         // builder 패턴 사용시 기본값이 null 로 들어감.
-        Account newAccount = Account.builder()
-                .nickname(signUpForm.getNickname())
-                .email(signUpForm.getEmail())
-                .password(passwordEncoder.encode(signUpForm.getPassword()))
-                .interestSubjectPostingByWeb(false)
-                .followingAccountPostingByWeb(false)
-                .posts(new ArrayList<>())
-                .build();
+        // 생성자를 통해 하는것을 좀더 어케 좀 해보자구요@@@@@
+        Account newAccount = new Account();
+        newAccount.createNewAccount(
+                signUpForm.getEmail(),
+                signUpForm.getNickname(),
+                passwordEncoder.encode(signUpForm.getPassword())
+        );
 
         newAccount.generateEmailCheckToken();
 
@@ -165,5 +163,10 @@ public class AccountService implements UserDetailsService {
     public void removeInterest(Account account, Interest interest) {
         Optional<Account> findAccount = accountRepository.findById(account.getId());
         findAccount.ifPresent(a -> a.getInterests().remove(interest));
+    }
+
+    public void followingRequest(Account findAccount, Account account) {
+        
+
     }
 }

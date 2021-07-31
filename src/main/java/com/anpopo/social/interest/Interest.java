@@ -8,7 +8,6 @@ import javax.persistence.*;
 
 @Getter @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor
-@Builder
 @SQLDelete(sql = "UPDATE interest SET deleted = true WHERE id=?")
 @Where(clause = "deleted=false")
 @Entity
@@ -21,11 +20,15 @@ public class Interest {
     @Column(nullable = false, unique = true)
     private String interest;
 
-    private Integer numberOfAccount;
+    private Integer numberOfAccount = 0;
 
     private boolean deleted = false;
 
-    private boolean hotInterest;
+    private boolean hotInterest = false;
 
-    private boolean superHotInterest;
+    private boolean superHotInterest = false;
+
+    public void createNewInterest(String interest) {
+        this.interest = interest;
+    }
 }

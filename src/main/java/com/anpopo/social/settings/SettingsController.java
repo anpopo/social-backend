@@ -1,16 +1,14 @@
 package com.anpopo.social.settings;
 
-import com.anpopo.social.account.AccountRepository;
+import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.account.AccountService;
 import com.anpopo.social.account.CurrentUser;
-import com.anpopo.social.domain.Account;
+import com.anpopo.social.account.domain.Account;
 import com.anpopo.social.interest.Interest;
 import com.anpopo.social.interest.InterestRepository;
-import com.anpopo.social.tag.Tag;
 import com.anpopo.social.settings.form.*;
 import com.anpopo.social.settings.validator.AccountFormValidator;
 import com.anpopo.social.settings.validator.PasswordFormValidator;
-import com.anpopo.social.tag.TagRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +23,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -196,5 +193,26 @@ public class SettingsController {
         }
         accountService.removeInterest(account, interest);
         return ResponseEntity.ok().build();
+    }
+
+
+    @GetMapping("/followers")
+    public String followerView(@CurrentUser Account account, Model model) {
+
+        Account findAccount = accountRepository.findAccountWithFollowersById(account.getId());
+        model.addAttribute(findAccount);
+        model.addAttribute("followers", findAccount.getFollowers());
+
+        return "settings/followers";
+    }
+
+    @GetMapping("/following")
+    public String followingView(@CurrentUser Account account, Model model) {
+
+        Account findAccount = accountRepository.findAccountWithFollowingById(account.getId());
+        model.addAttribute(findAccount);
+        model.addAttribute("following", findAccount.getFollowers());
+
+        return "settings/following";
     }
 }
