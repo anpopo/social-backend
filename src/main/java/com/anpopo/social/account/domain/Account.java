@@ -1,5 +1,6 @@
 package com.anpopo.social.account.domain;
 
+import com.anpopo.social.follow.Follow;
 import com.anpopo.social.interest.Interest;
 import com.anpopo.social.post.Post;
 import com.anpopo.social.settings.form.NotificationForm;
@@ -80,30 +81,11 @@ public class Account {
     // 관심 있는 주제로 포스팅이 올라온 경우 알람 설정
     private boolean interestSubjectPostingByWeb = false;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "user_relations",
-            joinColumns = @JoinColumn(name = "followed_id"),
-            inverseJoinColumns = @JoinColumn(name = "follower_id"))
-    private Set<Account> followers = new HashSet<>();
+    @OneToMany(mappedBy = "followed", fetch = FetchType.LAZY)
+    private Set<Follow> followers = new HashSet<>();
 
-    @ManyToMany(mappedBy = "followers", fetch = FetchType.LAZY)
-    private Set<Account> following = new HashSet<>();
-
-    public void addFollower(Account follower) {
-        followers.add(follower);
-        follower.following.add(this);
-    }
-
-    public void addFollowing(Account followed) {
-        followed.addFollower(this);
-    }
-
-    private boolean isAccepted;
-    private boolean isFollower;
-    private boolean isFollowing;
-
-    private LocalDateTime followRequestAt;
-    private LocalDateTime acceptedAt;
+    @OneToMany(mappedBy = "follow", fetch = FetchType.LAZY)
+    private Set<Follow> following = new HashSet<>();
 
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
@@ -165,5 +147,13 @@ public class Account {
         this.email = email;
         this.nickname = nickname;
         this.password = password;
+    }
+
+    public void addFollowers(Follow follow) {
+        this.followers.add(follow);
+    }
+
+    public void addFollowing(Follow follow) {
+        this.following.add(follow);
     }
 }

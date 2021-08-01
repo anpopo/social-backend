@@ -155,7 +155,7 @@ public class AccountController {
 
     @GetMapping("/profile/@{nickname}")
     public String viewProfile(@PathVariable String nickname, @CurrentUser Account account, Model model) {
-        Account findAccount = accountRepository.findByNickname(nickname);
+        Account findAccount = accountRepository.findAccountWithFollowersAndFollowingByNickname(nickname);
 
         if (findAccount == null) {
             throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
@@ -169,17 +169,35 @@ public class AccountController {
         return "account/profile";
     }
 
-    @PostMapping("/follow/${nickname}/request")
+    /**
+     * findAccount -> 팔로우 할 계정
+     * requestAccount -> 팔로우를 신청한 계정
+     */
+    @PostMapping("/{nickname}/follow/request")
     public String followRequest(@CurrentUser Account account, @PathVariable String nickname, RedirectAttributes redirectAttributes) {
-        Account findAccount = accountRepository.findByNickname(nickname);
+
+        Account findAccount = accountRepository.findAccountWithFollowersByNickname(nickname);
+
         // 유효한 닉네임인지 검사
-        if (account == null || findAccount.equals(account)) {
-            throw new IllegalArgumentException("팔로우 신청한 유저를 확인해주세요.");
+        if (findAccount == null || findAccount.equals(account)) {
+            throw new IllegalArgumentException("올바른 요청이 아닙니다");
         }
 
-        accountService.followingRequest(findAccount, account);
+        Account requestAccount = accountRepository.findAccountWithFollowingById(account.getId());
+
+        accountService.followRequest(findAccount, requestAccount);
 
         return "redirect:/profile/@" + findAccount.getEncodedNickname();
 
+    }
+
+    @PostMapping("/{nickname}/follow/accept")
+    public String followAccept(@CurrentUser Account account) {
+        return "redirect:/";
+    }
+
+    @PostMapping("/{nickname}/follow/reject")
+    public String followReject(@CurrentUser Account account) {
+        return "redirect:/";
     }
 }

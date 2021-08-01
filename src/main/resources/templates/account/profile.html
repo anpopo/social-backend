@@ -20,7 +20,7 @@
                 <div class="row my-3 d-flex px-4">
                     <h2 class="display-4 mr-auto" th:text="${findAccount.nickname}" style="font-weight: bold;">nickname</h2>
                     <div th:if="${!isOwner}" class="align-self-center"  th:with="findAccount=${findAccount}">
-                        <form th:action="@{|/follow/${findAccount.nickname}/request|}" method="post">
+                        <form th:action="@{|/${findAccount.nickname}/follow/request|}" method="post">
                             <div class="form-group mb-2">
                                 <button type="submit" class="btn btn-outline-primary mb-2">
                                     <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 신청

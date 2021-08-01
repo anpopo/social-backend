@@ -3,6 +3,8 @@ package com.anpopo.social.account;
 import com.anpopo.social.account.domain.Account;
 import com.anpopo.social.account.form.SignUpForm;
 import com.anpopo.social.account.repository.AccountRepository;
+import com.anpopo.social.follow.Follow;
+import com.anpopo.social.follow.FollowRepository;
 import com.anpopo.social.interest.Interest;
 import com.anpopo.social.settings.form.NotificationForm;
 import com.anpopo.social.settings.form.ProfileForm;
@@ -34,7 +36,7 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
-    private final TagRepository tagRepository;
+    private final FollowRepository followRepository;
 
     public void signUpProcess(SignUpForm signUpForm) {
 
@@ -165,8 +167,23 @@ public class AccountService implements UserDetailsService {
         findAccount.ifPresent(a -> a.getInterests().remove(interest));
     }
 
-    public void followingRequest(Account findAccount, Account account) {
-        
+    /**
+     * findAccount -> 팔로우 할 계정 -> followed
+     * account -> 팔로우를 신청한 계정 -> follow
+     */
+    public void followRequest(Account findAccount, Account account) {
+
+        if (followRepository.existsFollowByFollowedAndFollow(findAccount, account)) {
+            throw new IllegalArgumentException("유효하지 않은 팔로우 요청입니다.");
+        }
+
+        // 새로운 follow 객체를 만들어 준다.
+        Follow follow = followRepository.save( new Follow(findAccount, account));
+
+        findAccount.addFollowers(follow);
+        account.addFollowing(follow);
+
+
 
     }
 }
