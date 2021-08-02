@@ -28,6 +28,13 @@ import java.util.*;
         @NamedAttributeNode("following")
 })
 
+@NamedEntityGraph(
+        name = "Account.withFollowersAndFollowersAccount",
+        attributeNodes = {@NamedAttributeNode(value = "followers", subgraph = "follow")},
+        subgraphs = @NamedSubgraph(name = "follow", attributeNodes = @NamedAttributeNode("follow"))
+)
+
+
 @Getter
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor

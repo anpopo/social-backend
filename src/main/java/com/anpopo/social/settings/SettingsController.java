@@ -4,6 +4,7 @@ import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.account.AccountService;
 import com.anpopo.social.account.CurrentUser;
 import com.anpopo.social.account.domain.Account;
+import com.anpopo.social.follow.Follow;
 import com.anpopo.social.interest.Interest;
 import com.anpopo.social.interest.InterestRepository;
 import com.anpopo.social.settings.form.*;
@@ -199,9 +200,20 @@ public class SettingsController {
     @GetMapping("/followers")
     public String followerView(@CurrentUser Account account, Model model) {
 
-        Account findAccount = accountRepository.findAccountWithFollowersById(account.getId());
+        Account findAccount = accountRepository.findAccountWithFollowersAndAccountById(account.getId());
         model.addAttribute(findAccount);
-        model.addAttribute("followers", findAccount.getFollowers());
+        model.addAttribute(
+                "followers",
+                findAccount.getFollowers().stream()
+                        .map(f -> {
+                            FollowForm followForm = new FollowForm();
+                            followForm.setId(f.getFollow().getId());
+                            followForm.setNickname(f.getFollow().getNickname());
+                            followForm.setProfileImage(f.getFollow().getProfileImage());
+                            followForm.setAccepted(f.isAccepted());
+                            return followForm;
+                        }).collect(Collectors.toList())
+        );
 
         return "settings/followers";
     }

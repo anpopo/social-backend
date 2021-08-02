@@ -37,4 +37,13 @@ public class Follow {
         this.follow = follow;
         this.requestedAt = LocalDateTime.now();
     }
+
+    public void acceptFollowRequest() {
+        this.isAccepted = true;
+        this.acceptedAt = LocalDateTime.now();
+    }
+
+    public void rejectFollowRequest() {
+
+    }
 }

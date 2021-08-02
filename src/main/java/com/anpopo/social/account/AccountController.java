@@ -172,6 +172,7 @@ public class AccountController {
     /**
      * findAccount -> 팔로우 할 계정
      * requestAccount -> 팔로우를 신청한 계정
+     * requestAccount -> findAccount 에게 팔로우를 요청한 상황
      */
     @PostMapping("/{nickname}/follow/request")
     public String followRequest(@CurrentUser Account account, @PathVariable String nickname, RedirectAttributes redirectAttributes) {
@@ -180,7 +181,7 @@ public class AccountController {
 
         // 유효한 닉네임인지 검사
         if (findAccount == null || findAccount.equals(account)) {
-            throw new IllegalArgumentException("올바른 요청이 아닙니다");
+            throw new IllegalArgumentException("올바른 팔로우 요청이 아닙니다");
         }
 
         Account requestAccount = accountRepository.findAccountWithFollowingById(account.getId());
@@ -191,13 +192,36 @@ public class AccountController {
 
     }
 
-    @PostMapping("/{nickname}/follow/accept")
-    public String followAccept(@CurrentUser Account account) {
-        return "redirect:/";
+    @PostMapping("/follow/accept")
+    public String followAccept(@CurrentUser Account account, String nickname) {
+        // userA -> userB 에게 팔로우를 요청한 상황에서
+        // userB 수락을 누른 경우
+        // account -> userB 수락을 누른 로그인 한 계졍
+        // nickname -> userA 요청을 신청한 계정 닉네임
+
+        Account requestAccount = accountRepository.findAccountWithFollowingByNickname(nickname);
+        if (requestAccount == null || requestAccount.equals(account)) {
+            throw new IllegalArgumentException("팔로우 수락 요청에 문제가 있습니다.");
+        }
+
+        Account followAccount = accountRepository.findAccountWithFollowersById(account.getId());
+
+        accountService.followAccept(followAccount, requestAccount);
+
+        return "redirect:/settings/followers";
     }
 
-    @PostMapping("/{nickname}/follow/reject")
-    public String followReject(@CurrentUser Account account) {
-        return "redirect:/";
+    @PostMapping("/follow/reject")
+    public String followReject(@CurrentUser Account account, String nickname) {
+
+        Account requestAccount = accountRepository.findAccountWithFollowingByNickname(nickname);
+        if (requestAccount == null || requestAccount.equals(account)) {
+            throw new IllegalArgumentException("팔로우 거절 요청에 문제가 있습니다.");
+        }
+
+        Account followAccount = accountRepository.findAccountWithFollowersById(account.getId());
+
+        accountService.followReject(followAccount, requestAccount);
+        return "redirect:/settings/followers";
     }
 }
