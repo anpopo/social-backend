@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -200,20 +201,26 @@ public class SettingsController {
     @GetMapping("/followers")
     public String followerView(@CurrentUser Account account, Model model) {
 
-        Account findAccount = accountRepository.findAccountWithFollowersAndAccountById(account.getId());
+        Account findAccount = accountRepository.findAccountWithFollowersWithAccountById(account.getId());
         model.addAttribute(findAccount);
-        model.addAttribute(
-                "followers",
-                findAccount.getFollowers().stream()
-                        .map(f -> {
-                            FollowForm followForm = new FollowForm();
-                            followForm.setId(f.getFollow().getId());
-                            followForm.setNickname(f.getFollow().getNickname());
-                            followForm.setProfileImage(f.getFollow().getProfileImage());
-                            followForm.setAccepted(f.isAccepted());
-                            return followForm;
-                        }).collect(Collectors.toList())
-        );
+
+        List<FollowForm> followers = new ArrayList<>();
+        List<FollowForm> followersPending = new ArrayList<>();
+
+        findAccount.getFollowers()
+                .forEach(f -> {
+                    FollowForm followForm = new FollowForm();
+                    followForm.setId(f.getFollow().getId());
+                    followForm.setNickname(f.getFollow().getNickname());
+                    followForm.setProfileImage(f.getFollow().getProfileImage());
+                    followForm.setAccepted(f.isAccepted());
+
+                    if(f.isAccepted()) followers.add(followForm);
+                    else followersPending.add(followForm);
+                });
+
+        model.addAttribute("followers",followers);
+        model.addAttribute("followersPending",followersPending);
 
         return "settings/followers";
     }

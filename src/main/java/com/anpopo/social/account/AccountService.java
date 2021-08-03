@@ -172,18 +172,25 @@ public class AccountService implements UserDetailsService {
      * account -> 팔로우를 신청한 계정 -> follow
      */
     public void followRequest(Account findAccount, Account requestAccount) {
-        
         // follow 신청을 받는 계정과 팔로우 신청을 한 계정으로 등록된 팔로우 객체가 없는 경우
         if (!followRepository.existsFollowByFollowedAndFollow(findAccount, requestAccount)) {
             // 새로운 follow 객체를 만들어 준다.
             Follow follow = followRepository.save( new Follow(findAccount, requestAccount));
 
-            // TODO findAccount 에 알람 보내주기
-            findAccount.addFollowers(follow);
-            requestAccount.addFollowing(follow);
+//            // TODO findAccount 에 알람 보내주기
+//            findAccount.addFollowers(follow);
+//            requestAccount.addFollowing(follow);
         }
     }
 
+    public void followCancel(Account findAccount, Account requestAccount) {
+
+        Follow follow = followRepository.findFollowByFollowedAndFollow(findAccount, requestAccount);
+        if (follow != null) {
+            // 새로운 follow 객체를 만들어 준다.
+            followRepository.delete(follow);
+        }
+    }
     public void followAccept(Account followAccount, Account requestAccount) {
         Follow follow = followRepository.findFollowByFollowedAndFollow(followAccount, requestAccount);
 

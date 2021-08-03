@@ -17,26 +17,32 @@
                      width="150" height="150"/>
             </div>
             <div class="col-8">
+                <div th:if="${message}" class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                    <span th:text="${message}">완료</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
                 <div class="row my-3 d-flex px-4">
                     <h2 class="display-4 mr-auto" th:text="${findAccount.nickname}" style="font-weight: bold;">nickname</h2>
                     <div th:if="${!isOwner}" class="align-self-center"  th:with="findAccount=${findAccount}">
-                        <form th:action="@{|/${findAccount.nickname}/follow/request|}" method="post">
+                        <form th:if="${!isFollowing && !isAccepted}" th:action="@{|/${findAccount.nickname}/follow/request|}" method="post">
                             <div class="form-group mb-2">
                                 <button type="submit" class="btn btn-outline-primary mb-2">
                                     <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 신청
                                 </button>
                             </div>
                         </form>
-                        <form th:action="@{|/${findAccount.nickname}/follow/request/cancel|}" method="post">
+                        <form th:if="${isFollowing && !isAccepted}" th:action="@{|/${findAccount.nickname}/follow/request/cancel|}" method="post">
                             <div class="form-group mb-2">
-                                <button type="submit" class="btn btn-outline-primary mb-2">
+                                <button type="submit" class="btn btn-outline-warning mb-2">
                                     <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 신청 취소
                                 </button>
                             </div>
                         </form>
-                        <form th:action="@{|/${findAccount.nickname}/follow/request|}" method="post">
+                        <form th:if="${isFollowing && isAccepted}" th:action="@{|/${findAccount.nickname}/follow/cancel|}" method="post">
                             <div class="form-group mb-2">
-                                <button type="submit" class="btn btn-outline-primary mb-2">
+                                <button type="submit" class="btn btn-outline-danger mb-2">
                                     <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 끊기
                                 </button>
                             </div>

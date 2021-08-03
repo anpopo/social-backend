@@ -4,6 +4,8 @@ import com.anpopo.social.account.domain.Account;
 import com.anpopo.social.account.form.SignUpForm;
 import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.account.validator.SignUpFormValidator;
+import com.anpopo.social.follow.Follow;
+import com.anpopo.social.follow.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -27,6 +29,7 @@ public class AccountController {
     private final SignUpFormValidator signUpFormValidator;
     private final AccountService accountService;
     private final AccountRepository accountRepository;
+    private final FollowRepository followRepository;
 
 
     @InitBinder("signUpForm")
@@ -161,10 +164,15 @@ public class AccountController {
             throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
         }
 
+        Follow follow = followRepository.findFollowByFollowedAndFollow(findAccount, account);
+
         model.addAttribute("account", account);
-        model.addAttribute( "findAccount", findAccount);
+        model.addAttribute("findAccount", findAccount);
         model.addAttribute("isOwner", findAccount.equals(account));
-        model.addAttribute("isFollowing", false);
+        model.addAttribute("isFollowing", findAccount.getFollowers().contains(follow));
+        model.addAttribute("isAccepted", follow != null && follow.isAccepted());
+
+
 
         return "account/profile";
     }
@@ -187,7 +195,44 @@ public class AccountController {
         Account requestAccount = accountRepository.findAccountWithFollowingById(account.getId());
 
         accountService.followRequest(findAccount, requestAccount);
+        redirectAttributes.addFlashAttribute("message", "팔로우 신청했습니다.");
+        return "redirect:/profile/@" + findAccount.getEncodedNickname();
 
+    }
+
+    @PostMapping("/{nickname}/follow/request/cancel")
+    public String followRequestCancel(@CurrentUser Account account, @PathVariable String nickname, RedirectAttributes redirectAttributes) {
+
+        Account findAccount = accountRepository.findAccountWithFollowersByNickname(nickname);
+
+        // 유효한 닉네임인지 검사
+        if (findAccount == null || findAccount.equals(account)) {
+            throw new IllegalArgumentException("올바른 팔로우 취소 요청이 아닙니다");
+        }
+
+        Account requestAccount = accountRepository.findAccountWithFollowingById(account.getId());
+
+        accountService.followCancel(findAccount, requestAccount);
+        redirectAttributes.addFlashAttribute("message", "팔로우 신청 취소했습니다.");
+
+        return "redirect:/profile/@" + findAccount.getEncodedNickname();
+
+    }
+
+    @PostMapping("/{nickname}/follow/cancel")
+    public String followCancel(@CurrentUser Account account, @PathVariable String nickname, RedirectAttributes redirectAttributes) {
+
+        Account findAccount = accountRepository.findAccountWithFollowersByNickname(nickname);
+
+        // 유효한 닉네임인지 검사
+        if (findAccount == null || findAccount.equals(account)) {
+            throw new IllegalArgumentException("올바른 팔로우 취소 요청이 아닙니다");
+        }
+
+        Account requestAccount = accountRepository.findAccountWithFollowingById(account.getId());
+        accountService.followCancel(findAccount, requestAccount);
+
+        redirectAttributes.addFlashAttribute("message", "팔로우를 끊었습니다.");
         return "redirect:/profile/@" + findAccount.getEncodedNickname();
 
     }

@@ -156,11 +156,20 @@ public class Account {
         this.password = password;
     }
 
-    public void addFollowers(Follow follow) {
-        this.followers.add(follow);
-    }
-
-    public void addFollowing(Follow follow) {
-        this.following.add(follow);
-    }
+//    public void addFollowers(Follow follow) {
+//        this.followers.add(follow);
+//    }
+//
+//    public void addFollowing(Follow follow) {
+//        this.following.add(follow);
+//    }
+//
+//
+//    public void removeFollowers(Follow follow) {
+//        this.followers.remove(follow);
+//    }
+//
+//    public void removeFollowing(Follow follow) {
+//        this.following.remove(follow);
+//    }
 }

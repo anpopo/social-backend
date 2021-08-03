@@ -17,11 +17,45 @@
                     </button>
                 </div>
                 <div class="row">
-                    <h2 class="col-12">Followers 관리</h2>
+                    <h2 class="col-12"><strong>Followers 관리</strong></h2>
                 </div>
                 <div class="row justify-content-center pt-3">
                     <div class="col-sm-12">
-                        <div class="row mt-3" >
+                        <div class="row mt-3" th:if="${followersPending}">
+                            <div class="row col">
+                                <ul class="list-unstyled col">
+                                    <li class="mt-3 row col" th:each="followerPending: ${followersPending}">
+                                        <a class=" media col" th:href="@{|/profile/@${followerPending.nickname}|}" >
+                                            <svg th:if="${#strings.isEmpty(followerPending?.profileImage)}" th:data-jdenticon-value="${followerPending.nickname}" width="64" height="64" class="rounded border bg-light mr-3"></svg>
+                                            <img th:if="${!#strings.isEmpty(followerPending?.profileImage)}" th:src="${followerPending?.profileImage}" width="64" height="64" class="rounded border mr-3"/>
+                                            <div class="media-body align-self-center" >
+                                                <h5 class="mt-0 mb-1"><span th:text="${followerPending.nickname}"></span></h5>
+                                            </div>
+                                            <div>
+                                                <form th:action="@{|/follow/accept|}" method="post">
+                                                    <div class="form-group mb-2">
+                                                        <input class="form-input" type="hidden" name="nickname" th:value="${followerPending.nickname}">
+                                                        <button type="submit" class="btn btn-outline-primary mb-2">
+                                                            <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 수락
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                                <form th:action="@{|/follow/reject|}" method="post">
+                                                    <div class="form-group mb-2">
+                                                        <input class="form-input" type="hidden" name="nickname" th:value="${followerPending.nickname}">
+                                                        <button type="submit" class="btn btn-outline-danger mb-2">
+                                                            <i class="fa fa-minus" aria-hidden="true"></i> 팔로우 거절
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <hr/>
+                        <div class="row mt-3" th:if="${followers}">
                             <div class="row col">
                                 <ul class="list-unstyled col">
                                     <li class="mt-3 row col" th:each="follower: ${followers}">
@@ -30,24 +64,6 @@
                                             <img th:if="${!#strings.isEmpty(follower?.profileImage)}" th:src="${follower?.profileImage}" width="64" height="64" class="rounded border mr-3"/>
                                             <div class="media-body align-self-center" >
                                                 <h5 class="mt-0 mb-1"><span th:text="${follower.nickname}"></span></h5>
-                                            </div>
-                                            <div th:if="${follower.isAccepted == false}">
-                                                <form th:action="@{|/follow/accept|}" method="post">
-                                                    <div class="form-group mb-2">
-                                                        <input class="form-input" type="hidden" name="nickname" th:value="${follower.nickname}">
-                                                        <button type="submit" class="btn btn-outline-primary mb-2">
-                                                            <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 수락
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                                <form th:action="@{|/follow/reject|}" method="post">
-                                                    <div class="form-group mb-2">
-                                                        <input class="form-input" type="hidden" name="nickname" th:value="${follower.nickname}">
-                                                        <button type="submit" class="btn btn-outline-danger mb-2">
-                                                            <i class="fa fa-minus" aria-hidden="true"></i> 팔로우 거절
-                                                        </button>
-                                                    </div>
-                                                </form>
                                             </div>
                                         </a>
                                     </li>
