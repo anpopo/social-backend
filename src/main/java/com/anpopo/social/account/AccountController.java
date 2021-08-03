@@ -172,8 +172,6 @@ public class AccountController {
         model.addAttribute("isFollowing", findAccount.getFollowers().contains(follow));
         model.addAttribute("isAccepted", follow != null && follow.isAccepted());
 
-
-
         return "account/profile";
     }
 
@@ -182,8 +180,8 @@ public class AccountController {
      * requestAccount -> 팔로우를 신청한 계정
      * requestAccount -> findAccount 에게 팔로우를 요청한 상황
      */
-    @PostMapping("/{nickname}/follow/request")
-    public String followRequest(@CurrentUser Account account, @PathVariable String nickname, RedirectAttributes redirectAttributes) {
+    @PostMapping("/follow/request/{type}")
+    public String followRequest(@CurrentUser Account account, String nickname, @PathVariable String type, RedirectAttributes redirectAttributes) {
 
         Account findAccount = accountRepository.findAccountWithFollowersByNickname(nickname);
 
@@ -196,12 +194,17 @@ public class AccountController {
 
         accountService.followRequest(findAccount, requestAccount);
         redirectAttributes.addFlashAttribute("message", "팔로우 신청했습니다.");
-        return "redirect:/profile/@" + findAccount.getEncodedNickname();
+
+        if ("profile".equalsIgnoreCase(type)) {
+            return "redirect:/profile/@" + findAccount.getEncodedNickname();
+        } else {
+            return "redirect:/settings/following";
+        }
 
     }
 
-    @PostMapping("/{nickname}/follow/request/cancel")
-    public String followRequestCancel(@CurrentUser Account account, @PathVariable String nickname, RedirectAttributes redirectAttributes) {
+    @PostMapping("/follow/request/cancel/{type}")
+    public String followRequestCancel(@CurrentUser Account account, String nickname, @PathVariable String type, RedirectAttributes redirectAttributes) {
 
         Account findAccount = accountRepository.findAccountWithFollowersByNickname(nickname);
 
@@ -215,12 +218,16 @@ public class AccountController {
         accountService.followCancel(findAccount, requestAccount);
         redirectAttributes.addFlashAttribute("message", "팔로우 신청 취소했습니다.");
 
-        return "redirect:/profile/@" + findAccount.getEncodedNickname();
+        if ("profile".equalsIgnoreCase(type)) {
+            return "redirect:/profile/@" + findAccount.getEncodedNickname();
+        } else {
+            return "redirect:/settings/following";
+        }
 
     }
 
-    @PostMapping("/{nickname}/follow/cancel")
-    public String followCancel(@CurrentUser Account account, @PathVariable String nickname, RedirectAttributes redirectAttributes) {
+    @PostMapping("/follow/cancel/{type}")
+    public String followCancel(@CurrentUser Account account, String nickname, @PathVariable String type, RedirectAttributes redirectAttributes) {
 
         Account findAccount = accountRepository.findAccountWithFollowersByNickname(nickname);
 
@@ -233,12 +240,17 @@ public class AccountController {
         accountService.followCancel(findAccount, requestAccount);
 
         redirectAttributes.addFlashAttribute("message", "팔로우를 끊었습니다.");
-        return "redirect:/profile/@" + findAccount.getEncodedNickname();
+
+        if ("profile".equalsIgnoreCase(type)) {
+            return "redirect:/profile/@" + findAccount.getEncodedNickname();
+        } else {
+            return "redirect:/settings/following";
+        }
 
     }
 
     @PostMapping("/follow/accept")
-    public String followAccept(@CurrentUser Account account, String nickname) {
+    public String followAccept(@CurrentUser Account account, String nickname, RedirectAttributes redirectAttributes) {
         // userA -> userB 에게 팔로우를 요청한 상황에서
         // userB 수락을 누른 경우
         // account -> userB 수락을 누른 로그인 한 계졍
@@ -252,12 +264,13 @@ public class AccountController {
         Account followAccount = accountRepository.findAccountWithFollowersById(account.getId());
 
         accountService.followAccept(followAccount, requestAccount);
+        redirectAttributes.addFlashAttribute("message", "'" + requestAccount.getNickname() + "' 님의 팔로우 요청을 수락하셨습니다");
 
         return "redirect:/settings/followers";
     }
 
     @PostMapping("/follow/reject")
-    public String followReject(@CurrentUser Account account, String nickname) {
+    public String followReject(@CurrentUser Account account, String nickname, RedirectAttributes redirectAttributes) {
 
         Account requestAccount = accountRepository.findAccountWithFollowingByNickname(nickname);
         if (requestAccount == null || requestAccount.equals(account)) {
@@ -267,6 +280,7 @@ public class AccountController {
         Account followAccount = accountRepository.findAccountWithFollowersById(account.getId());
 
         accountService.followReject(followAccount, requestAccount);
+        redirectAttributes.addFlashAttribute("message", "'" + requestAccount.getNickname() + "' 님의 팔로우 요청을 거절하셨습니다");
         return "redirect:/settings/followers";
     }
 }

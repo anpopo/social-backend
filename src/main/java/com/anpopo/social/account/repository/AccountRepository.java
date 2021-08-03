@@ -37,4 +37,7 @@ public interface AccountRepository extends JpaRepository<Account, Long>, Account
 
     @EntityGraph("Account.withFollowersAndFollowersAccount")
     Account findAccountWithFollowersWithAccountById(Long id);
+
+    @EntityGraph("Account.withFollowingAndFollowingAccount")
+    Account findAccountWithFollowingWithAccountById(Long id);
 }

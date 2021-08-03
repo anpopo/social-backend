@@ -33,6 +33,11 @@ import java.util.*;
         attributeNodes = {@NamedAttributeNode(value = "followers", subgraph = "follow")},
         subgraphs = @NamedSubgraph(name = "follow", attributeNodes = @NamedAttributeNode("follow"))
 )
+@NamedEntityGraph(
+        name = "Account.withFollowingAndFollowingAccount",
+        attributeNodes = {@NamedAttributeNode(value = "following", subgraph = "followed")},
+        subgraphs = @NamedSubgraph(name = "followed", attributeNodes = @NamedAttributeNode("followed"))
+)
 
 
 @Getter

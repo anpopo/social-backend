@@ -26,22 +26,25 @@
                 <div class="row my-3 d-flex px-4">
                     <h2 class="display-4 mr-auto" th:text="${findAccount.nickname}" style="font-weight: bold;">nickname</h2>
                     <div th:if="${!isOwner}" class="align-self-center"  th:with="findAccount=${findAccount}">
-                        <form th:if="${!isFollowing && !isAccepted}" th:action="@{|/${findAccount.nickname}/follow/request|}" method="post">
+                        <form th:if="${!isFollowing && !isAccepted}" th:action="@{|/follow/request/profile|}" method="post">
                             <div class="form-group mb-2">
+                                <input type="hidden" class="form-control" name="nickname" th:value="${findAccount.nickname}"/>
                                 <button type="submit" class="btn btn-outline-primary mb-2">
                                     <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 신청
                                 </button>
                             </div>
                         </form>
-                        <form th:if="${isFollowing && !isAccepted}" th:action="@{|/${findAccount.nickname}/follow/request/cancel|}" method="post">
+                        <form th:if="${isFollowing && !isAccepted}" th:action="@{|/follow/request/cancel/profile|}" method="post">
                             <div class="form-group mb-2">
+                                <input type="hidden" class="form-control" name="nickname" th:value="${findAccount.nickname}"/>
                                 <button type="submit" class="btn btn-outline-warning mb-2">
                                     <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 신청 취소
                                 </button>
                             </div>
                         </form>
-                        <form th:if="${isFollowing && isAccepted}" th:action="@{|/${findAccount.nickname}/follow/cancel|}" method="post">
+                        <form th:if="${isFollowing && isAccepted}" th:action="@{|/follow/cancel/profile|}" method="post">
                             <div class="form-group mb-2">
+                                <input type="hidden" class="form-control" name="nickname" th:value="${findAccount.nickname}"/>
                                 <button type="submit" class="btn btn-outline-danger mb-2">
                                     <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 끊기
                                 </button>

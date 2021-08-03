@@ -227,10 +227,30 @@ public class SettingsController {
 
     @GetMapping("/following")
     public String followingView(@CurrentUser Account account, Model model) {
-
-        Account findAccount = accountRepository.findAccountWithFollowingById(account.getId());
+        Account findAccount = accountRepository.findAccountWithFollowingWithAccountById(account.getId());
         model.addAttribute(findAccount);
-        model.addAttribute("following", findAccount.getFollowers());
+
+        List<FollowForm> following = new ArrayList<>();
+        List<FollowForm> followingPending = new ArrayList<>();
+
+        findAccount.getFollowing()
+                .forEach(f -> {
+                    FollowForm followForm = new FollowForm();
+                    followForm.setId(f.getFollowed().getId());
+                    followForm.setNickname(f.getFollowed().getNickname());
+                    followForm.setProfileImage(f.getFollowed().getProfileImage());
+                    followForm.setAccepted(f.isAccepted());
+
+                    if(f.isAccepted()) following.add(followForm);
+                    else followingPending.add(followForm);
+                });
+
+        model.addAttribute("following",following);
+        model.addAttribute("followingPending",followingPending);
+
+        for (FollowForm followForm : followingPending) {
+            System.out.println("followForm = " + followForm);
+        }
 
         return "settings/following";
     }

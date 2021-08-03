@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head th:replace="fragments.html :: head-fragment"></head>
+<body>
+    <nav th:replace="fragments.html :: nav-fragment"></nav>
+
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-2">
+                <div th:replace="fragments.html :: settings-menu(currentMenu='following')"></div>
+            </div>
+            <div class="col-8">
+                <div th:if="${message}" class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                    <span th:text="${message}">완료</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="row">
+                    <h2 class="col-12"><strong>Following 관리</strong></h2>
+                </div>
+                <div class="row justify-content-center pt-3">
+                    <div class="col-sm-12">
+                        <div class="row mt-3" th:if="${followingPending}">
+                            <div class="row col">
+                                <ul class="list-unstyled col">
+                                    <li class="mt-3 row col" th:each="followPending: ${followingPending}">
+                                        <a class=" media col" th:href="@{|/profile/@${followPending.nickname}|}" >
+                                            <svg th:if="${#strings.isEmpty(followPending?.profileImage)}" th:data-jdenticon-value="${followPending.nickname}" width="64" height="64" class="rounded border bg-light mr-3"></svg>
+                                            <img th:if="${!#strings.isEmpty(followPending?.profileImage)}" th:src="${followPending?.profileImage}" width="64" height="64" class="rounded border mr-3"/>
+                                            <div class="media-body align-self-center" >
+                                                <h5 class="mt-0 mb-1"><span th:text="${followPending.nickname}"></span></h5>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <form th:action="@{|/follow/request/cancel/settings|}" method="post">
+                                                    <div class="form-group mb-2">
+                                                        <input type="hidden" class="form-control" name="nickname" th:value="${followPending.nickname}"/>
+                                                        <button type="submit" class="btn btn-outline-warning mb-2">
+                                                            <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 신청 취소
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <hr/>
+                        <div class="row mt-3" th:if="${following}">
+                            <div class="row col">
+                                <ul class="list-unstyled col">
+                                    <li class="mt-3 row col" th:each="follow: ${following}">
+                                        <a class=" media col" th:href="@{|/profile/@${follow.nickname}|}" >
+                                            <svg th:if="${#strings.isEmpty(follow?.profileImage)}" th:data-jdenticon-value="${follow.nickname}" width="64" height="64" class="rounded border bg-light mr-3"></svg>
+                                            <img th:if="${!#strings.isEmpty(follow?.profileImage)}" th:src="${follow?.profileImage}" width="64" height="64" class="rounded border mr-3"/>
+                                            <div class="media-body align-self-center" >
+                                                <h5 class="mt-0 mb-1"><span th:text="${follow.nickname}"></span></h5>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <form th:action="@{|/follow/cancel/settings|}" method="post">
+                                                    <div class="form-group mb-2">
+                                                        <input type="hidden" class="form-control" name="nickname" th:value="${follow.nickname}"/>
+                                                        <button type="submit" class="btn btn-outline-danger mb-2">
+                                                            <i class="fa fa-plus" aria-hidden="true"></i> 팔로우 끊기
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:replace="fragments.html :: script-fragment"></script>
+
+</body>
+</html>

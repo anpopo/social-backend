@@ -184,7 +184,6 @@ public class AccountService implements UserDetailsService {
     }
 
     public void followCancel(Account findAccount, Account requestAccount) {
-
         Follow follow = followRepository.findFollowByFollowedAndFollow(findAccount, requestAccount);
         if (follow != null) {
             // 새로운 follow 객체를 만들어 준다.
@@ -193,7 +192,6 @@ public class AccountService implements UserDetailsService {
     }
     public void followAccept(Account followAccount, Account requestAccount) {
         Follow follow = followRepository.findFollowByFollowedAndFollow(followAccount, requestAccount);
-
         if (follow != null) {
             follow.acceptFollowRequest();
         }
@@ -201,7 +199,6 @@ public class AccountService implements UserDetailsService {
 
     public void followReject(Account followAccount, Account requestAccount) {
         Follow follow = followRepository.findFollowByFollowedAndFollow(followAccount, requestAccount);
-
         if (follow != null) {
             followAccount.getFollowers().remove(follow);
             requestAccount.getFollowing().remove(follow);
