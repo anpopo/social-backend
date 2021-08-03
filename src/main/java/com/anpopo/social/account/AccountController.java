@@ -6,6 +6,7 @@ import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.account.validator.SignUpFormValidator;
 import com.anpopo.social.follow.Follow;
 import com.anpopo.social.follow.FollowRepository;
+import com.anpopo.social.settings.form.FollowForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.net.URLEncoder;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -159,6 +161,7 @@ public class AccountController {
     @GetMapping("/profile/@{nickname}")
     public String viewProfile(@PathVariable String nickname, @CurrentUser Account account, Model model) {
         Account findAccount = accountRepository.findAccountWithFollowersAndFollowingByNickname(nickname);
+//        Account findAccount = accountRepository.findAccountForProfilePage(nickname);
 
         if (findAccount == null) {
             throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
@@ -171,6 +174,30 @@ public class AccountController {
         model.addAttribute("isOwner", findAccount.equals(account));
         model.addAttribute("isFollowing", findAccount.getFollowers().contains(follow));
         model.addAttribute("isAccepted", follow != null && follow.isAccepted());
+        model.addAttribute(
+                "followers",
+                findAccount.getFollowers().stream()
+                        .sequential()
+                        .filter(Follow::isAccepted)
+                        .map(f->{
+                            FollowForm followForm = new FollowForm();
+                            followForm.setId(f.getFollow().getId());
+                            followForm.setNickname(f.getFollow().getNickname());
+                            followForm.setProfileImage(f.getFollow().getProfileImage());
+                            return followForm;
+                        }).collect(Collectors.toList()));
+        model.addAttribute(
+                "following",
+                findAccount.getFollowing().stream()
+                        .sequential()
+                        .filter(Follow::isAccepted)
+                        .map(f->{
+                            FollowForm followForm = new FollowForm();
+                            followForm.setId(f.getFollowed().getId());
+                            followForm.setNickname(f.getFollowed().getNickname());
+                            followForm.setProfileImage(f.getFollowed().getProfileImage());
+                            return followForm;
+                        }).collect(Collectors.toList()));
 
         return "account/profile";
     }

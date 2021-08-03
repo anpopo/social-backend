@@ -99,10 +99,38 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" th:classappend="${!isOwner} ? 'active show'" id="v-pills-follower" role="tabpanel" aria-labelledby="v-pills-follower-tab">
-                        follower
+                        <div class="row-sm-12">
+                            <div class="row">
+                                <div class="col-md-2" th:each="follower: ${followers}">
+                                    <a class="card shadow-sm" th:href="@{|/profile/@${follower.nickname}|}" >
+                                        <svg th:if="${#strings.isEmpty(follower.profileImage)}" class="img-fluid mx-auto rounded img-thumbnail"
+                                             th:data-jdenticon-value="${follower.nickname}" width="100" height="100"></svg>
+                                        <img th:if="${!#strings.isEmpty(follower.profileImage)}" class="img-fluid mx-auto rounded img-thumbnail"
+                                             th:src="${follower.profileImage}" width="100" height="100"/>
+                                        <div class="card-title text-center" >
+                                            <h5 class="mt-1 mb-1" th:text="${follower.nickname}"></h5>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="tab-pane fade" id="v-pills-following" role="tabpanel" aria-labelledby="v-pills-following-tab">
-                        following
+                        <div class="row-sm-12">
+                            <div class="row">
+                                <div class="col-md-2" th:each="follow: ${following}">
+                                    <a class="card shadow-sm" th:href="@{|/profile/@${follow.nickname}|}" >
+                                        <svg th:if="${#strings.isEmpty(follow.profileImage)}" class="img-fluid mx-auto rounded img-thumbnail"
+                                             th:data-jdenticon-value="${follow.nickname}" width="100" height="100"></svg>
+                                        <img th:if="${!#strings.isEmpty(follow.profileImage)}" class="img-fluid mx-auto rounded img-thumbnail"
+                                             th:src="${follow.profileImage}" width="100" height="100"/>
+                                        <div class="card-title text-center" >
+                                            <h5 class="mt-1 mb-1" th:text="${follow.nickname}"></h5>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="tab-pane fade" id="v-pills-posting" role="tabpanel" aria-labelledby="v-pills-profile-tab">
                         posting
