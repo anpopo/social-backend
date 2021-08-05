@@ -100,7 +100,7 @@ public class AccountController {
             return "account/check-email";
         }
 
-        accountService.sendMail(account);
+        accountService.sendEmail(account);
 
         return "redirect:/";
     }

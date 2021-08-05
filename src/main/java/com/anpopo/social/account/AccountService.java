@@ -5,7 +5,10 @@ import com.anpopo.social.account.form.SignUpForm;
 import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.account.domain.Follow;
 import com.anpopo.social.account.repository.FollowRepository;
+import com.anpopo.social.config.AppProperties;
 import com.anpopo.social.interest.Interest;
+import com.anpopo.social.mail.EmailMessage;
+import com.anpopo.social.mail.EmailService;
 import com.anpopo.social.settings.form.NotificationForm;
 import com.anpopo.social.settings.form.ProfileForm;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,8 +38,10 @@ import java.util.Set;
 public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
-    private final JavaMailSender mailSender;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final TemplateEngine templateEngine;
+    private final AppProperties appProperties;
     private final FollowRepository followRepository;
 
     public void signUpProcess(SignUpForm signUpForm) {
@@ -43,7 +50,7 @@ public class AccountService implements UserDetailsService {
         Account newAccount = createAndSaveUserAccount(signUpForm);
 
         // 메일 발송
-        sendMail(newAccount);
+        sendEmail(newAccount);
         
         // 로그인 처리
         login(newAccount);
@@ -61,12 +68,24 @@ public class AccountService implements UserDetailsService {
         SecurityContextHolder.getContext().setAuthentication(token);
     }
 
-    public void sendMail(Account account) {
-        SimpleMailMessage mailMessage = getSimpleMailMessage(
-                account,
-                "The Social, 회원 가입 인증",
-                "/email-check-token?token=");
-        mailSender.send(mailMessage);
+    public void sendEmail(Account account) {
+        Context context = new Context();
+
+        context.setVariable("link", "/email-check-token?token=" + account.getEmailCheckToken() + "&email=" + account.getEmail());
+        context.setVariable("message", "The Social 회원가입 인증입니다.");
+        context.setVariable("host", appProperties.getHost());
+        context.setVariable("linkName", "이메일 인증하기");
+        context.setVariable("nickname", account.getNickname());
+
+        String message = templateEngine.process("mail/simple-link", context);
+
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(account.getEmail())
+                .subject("The Social, 회원 가입 인증")
+                .message(message)
+                .build();
+
+        emailService.send(emailMessage);
     }
 
     public void completeSignUp(Account findAccount) {
@@ -78,14 +97,27 @@ public class AccountService implements UserDetailsService {
     }
 
     public void sendEmailLoginLink(Account account) {
+
         account.generateEmailCheckToken();
 
-        SimpleMailMessage mailMessage = getSimpleMailMessage(
-                account,
-                "스터디올래, 로그인 링크",
-                "/login-by-email?token=");
+        Context context = new Context();
 
-        mailSender.send(mailMessage);
+        context.setVariable("link", "/login-by-email?token=" + account.getEmailCheckToken() + "&email=" + account.getEmail());
+        context.setVariable("message", "The Social 에 로그인 하려면 링크를 클릭하세요");
+        context.setVariable("host", appProperties.getHost());
+        context.setVariable("linkName", "The Social 로그인 하기");
+        context.setVariable("nickname", account.getNickname());
+
+        String message = templateEngine.process("mail/simple-link", context);
+
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(account.getEmail())
+                .subject("The Social, 로그인 링크")
+                .message(message)
+                .build();
+
+        emailService.send(emailMessage);
+
     }
 
     public void updateProfile(Account account, ProfileForm profileForm) {

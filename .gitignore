@@ -51,3 +51,5 @@ gradle/**
 
 ### querydsl ###
 generated/
+
+application-dev.properties
