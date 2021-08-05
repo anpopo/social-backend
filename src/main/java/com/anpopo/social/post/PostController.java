@@ -1,16 +1,26 @@
 package com.anpopo.social.post;
 
+import aj.org.objectweb.asm.TypeReference;
 import com.anpopo.social.account.CurrentUser;
 import com.anpopo.social.account.domain.Account;
+import com.anpopo.social.account.repository.AccountRepository;
+import com.anpopo.social.tag.Tag;
+import com.anpopo.social.tag.TagRepository;
+import com.anpopo.social.tag.TagService;
+import com.anpopo.social.tag.form.TagForm;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -18,13 +28,22 @@ import java.util.List;
 @Controller
 public class PostController {
 
+    private final AccountRepository accountRepository;
     private final PostService postService;
     private final PostRepository postRepository;
+    private final TagService tagService;
+    private final TagRepository tagRepository;
+    private final ObjectMapper objectMapper;
+
 
     @GetMapping
-    public String newPostView(@CurrentUser Account account, Model model) {
+    public String newPostView(@CurrentUser Account account, Model model) throws JsonProcessingException {
         model.addAttribute(account);
         model.addAttribute(new PostForm());
+
+        List<String> whiteList = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
+        model.addAttribute("whiteList", objectMapper.writeValueAsString(whiteList));
+
         return "post/form";
     }
 
@@ -32,36 +51,34 @@ public class PostController {
     public String createPost(@CurrentUser Account account, @Valid PostForm postForm, Errors errors, Model model) {
         if (errors.hasErrors()) {
             model.addAttribute(account);
+            model.addAttribute(postForm);
             return "post/form";
         }
-
         // 포스트 저장
         postService.savePost(account, postForm);
 
-        return "redirect:/post/list";
-    }
-
-    @GetMapping("/list")
-    public String postList(@CurrentUser Account account, Model model) {
-
-        model.addAttribute(account);
-        List<Post> posts = postService.getPostsWithTags(account);
-
-        if (posts.size() > 0) {
-            model.addAttribute("posts", posts);
-        }
-
-        return "post/list";
+        return "redirect:/";
     }
 
     @GetMapping("/{id}")
-    public String updatePostView(@CurrentUser Account account, @PathVariable Long id, Model model) {
+    public String updatePostView(@CurrentUser Account account, @PathVariable Long id, Model model) throws JsonProcessingException {
         model.addAttribute(account);
+
         // 태그를 포함한 포스팅 가져오기
         Post post = postRepository.findPostWithTagsById(id);
+        PostForm postForm = PostForm.builder()
+                .id(post.getId())
+                .context(post.getContext())
+                .tags(objectMapper.writeValueAsString(post.getTags().stream().map(Tag::getTitle)))
+                .hiddenTags("|" + post.getTags().stream().map(Tag::getTitle).collect(Collectors.joining("|")) + "|")
+                .build();
 
-        model.addAttribute(post);
-        return "post/form";
+        model.addAttribute(postForm);
+
+        List<String> whiteList = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
+        model.addAttribute("whiteList", objectMapper.writeValueAsString(whiteList));
+
+        return "post/edit";
     }
 
     @PostMapping("/{id}")
@@ -71,11 +88,9 @@ public class PostController {
             model.addAttribute(postForm);
             return "post/form";
         }
-        Post post = postRepository.findPostWithTagsById(id);
+        postService.updatePost(id, postForm);
 
-        postService.updatePost(post, postForm);
-
-        return "redirect:/list";
+        return "redirect:/";
     }
 
     @DeleteMapping("/{id}")
@@ -84,5 +99,26 @@ public class PostController {
     }
 
 
+    @ResponseBody
+    @PostMapping("/tags/add")
+    public ResponseEntity addTags(@CurrentUser Account account, @RequestBody TagForm tagForm) {
+
+        tagService.findOrCreateNew(tagForm.getTagTitle(), account);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/tags/remove")
+    public ResponseEntity removeTag(@CurrentUser Account account, @RequestBody TagForm tagForm) {
+        String title = tagForm.getTagTitle();
+
+        Optional<Tag> tag = tagRepository.findByTitle(title);
+
+        if (tag.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok().build();
+    }
 
 }

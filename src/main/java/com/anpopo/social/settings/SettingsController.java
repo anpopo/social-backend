@@ -4,7 +4,6 @@ import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.account.AccountService;
 import com.anpopo.social.account.CurrentUser;
 import com.anpopo.social.account.domain.Account;
-import com.anpopo.social.follow.Follow;
 import com.anpopo.social.interest.Interest;
 import com.anpopo.social.interest.InterestRepository;
 import com.anpopo.social.settings.form.*;

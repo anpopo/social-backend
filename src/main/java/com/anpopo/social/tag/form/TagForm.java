@@ -1,4 +1,4 @@
-package com.anpopo.social.settings.form;
+package com.anpopo.social.tag.form;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

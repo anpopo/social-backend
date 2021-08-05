@@ -1,6 +1,7 @@
-package com.anpopo.social.follow;
+package com.anpopo.social.account.repository;
 
 import com.anpopo.social.account.domain.Account;
+import com.anpopo.social.account.domain.Follow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 

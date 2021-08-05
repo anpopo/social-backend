@@ -24,4 +24,10 @@ public class Tag {
     private Account account;
 
     private LocalDateTime createdAt;
+
+    private Long useCount;
+
+    public void addUseCount() {
+        this.useCount++;
+    }
 }

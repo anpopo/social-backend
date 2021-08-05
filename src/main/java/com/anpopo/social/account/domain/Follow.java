@@ -1,4 +1,4 @@
-package com.anpopo.social.follow;
+package com.anpopo.social.account.domain;
 
 import com.anpopo.social.account.domain.Account;
 import lombok.AccessLevel;

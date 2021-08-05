@@ -4,8 +4,8 @@ import com.anpopo.social.account.domain.Account;
 import com.anpopo.social.account.form.SignUpForm;
 import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.account.validator.SignUpFormValidator;
-import com.anpopo.social.follow.Follow;
-import com.anpopo.social.follow.FollowRepository;
+import com.anpopo.social.account.domain.Follow;
+import com.anpopo.social.account.repository.FollowRepository;
 import com.anpopo.social.settings.form.FollowForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.net.URLEncoder;
 import java.util.stream.Collectors;
 
 @Slf4j

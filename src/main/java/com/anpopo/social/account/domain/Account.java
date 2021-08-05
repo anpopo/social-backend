@@ -1,6 +1,5 @@
 package com.anpopo.social.account.domain;
 
-import com.anpopo.social.follow.Follow;
 import com.anpopo.social.interest.Interest;
 import com.anpopo.social.post.Post;
 import com.anpopo.social.settings.form.NotificationForm;
@@ -8,7 +7,6 @@ import com.anpopo.social.settings.form.ProfileForm;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.springframework.data.jpa.repository.EntityGraph;
 
 import javax.persistence.*;
 import java.net.URLEncoder;
@@ -93,9 +91,6 @@ public class Account {
 
     private boolean deleted = false;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Post> posts = new ArrayList<>();
-
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Interest> interests = new HashSet<>();
 
@@ -105,10 +100,10 @@ public class Account {
     // 관심 있는 주제로 포스팅이 올라온 경우 알람 설정
     private boolean interestSubjectPostingByWeb = false;
 
-    @OneToMany(mappedBy = "followed", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "followed", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Follow> followers = new HashSet<>();
 
-    @OneToMany(mappedBy = "follow", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "follow", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Follow> following = new HashSet<>();
 
     public void generateEmailCheckToken() {
@@ -161,10 +156,6 @@ public class Account {
 
     public String getEncodedNickname() {
         return URLEncoder.encode(this.nickname, StandardCharsets.UTF_8);
-    }
-
-    public void savePost(Post post) {
-        this.posts.add(post);
     }
 
     public void createNewAccount(String email, String nickname, String password) {

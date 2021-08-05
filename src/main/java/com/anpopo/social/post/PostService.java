@@ -23,35 +23,32 @@ public class PostService {
     private final TagRepository tagRepository;
 
     public void savePost(Account account, PostForm postForm) {
-        Post post = createPost(postForm, account);
 
-        Set<Tag> tags = tagRepository.findAllByTitleIn(Arrays.stream(postForm.getTags().split(",")).filter(t -> !t.isBlank()).collect(Collectors.toList()));
+        Post post = new Post(
+                postForm.getContext(),
+                account,
+                postForm.getPostImage1(), postForm.getPostImage2(), postForm.getPostImage3()
+        );
+
+        // 태그 저장
+        List<String> tagTitles = Arrays.stream(postForm.getHiddenTags().split("\\|")).filter(t -> !t.isBlank()).collect(Collectors.toList());
+        Set<Tag> tags = tagRepository.findByTitleIn(tagTitles);
+
         post.saveTags(tags);
-        account.savePost(post);
 
         postRepository.save(post);
-        accountRepository.save(account);
     }
 
-    private Post createPost(PostForm postForm, Account account) {
 
-        Post post = new Post();
+    public void updatePost(Long id, PostForm postForm) {
 
-        post.createNewPost(postForm.getContext(), account);
+        Post post = postRepository.findPostWithTagsById(id);
 
-        return post;
+        // 태그 저장
+        List<String> tagTitles = Arrays.stream(postForm.getHiddenTags().split("\\|")).filter(t -> !t.isBlank()).collect(Collectors.toList());
+        Set<Tag> tags = tagRepository.findByTitleIn(tagTitles);
 
-    }
-
-    public List<Post> getPostsWithTags(Account account) {
-        return postRepository.findAllWithTagsByAccount(account);
-    }
-
-    public void updatePost(Post post, PostForm postForm) {
-
-        Set<Tag> tags = tagRepository.findAllByTitleIn(Arrays.stream(postForm.getTags().split(",")).filter(t -> !t.isBlank()).collect(Collectors.toList()));
-
-        post.updatePost(postForm.getContext(), tags);
+        post.updatePost(postForm.getContext(), tags, postForm.getPostImage1(), postForm.getPostImage2(), postForm.getPostImage3() );
 
     }
 }

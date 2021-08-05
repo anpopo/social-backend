@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head th:replace="fragments.html :: head-fragment"></head>
+<body>
+    <nav th:replace="fragments.html :: nav-fragment"></nav>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-8">
+                <div class="row">
+                    <h2 class="col-12">포스팅 작성</h2>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <form class="col-md-12" th:object="${postForm}" novalidate th:action="@{/post}" method="post">
+                            <div class="needs-validationform-group mt-4">
+                                <textarea id="context" th:field="*{context}" class="form-control" rows="10" th:utext="*{context}"
+                                          placeholder="원하는 내용을 작성해 주세요." aria-describedby="contextHelp" maxlength="1000"></textarea>
+                                <small id="contextHelp" class="form-text text-muted mt-2">
+                                    1000자 이내로 작성해 주세요.
+                                </small>
+                                <small class="form-text text-danger" th:if="${#fields.hasErrors('context')}" th:errors="*{context}">
+                                    1000자 이내로 작성해 주세요.
+                                </small>
+                            </div>
+                            <div class="form-group">
+                                <input type="hidden" th:field="*{hiddenTags}" />
+                                <div id="whiteList" th:text="${whiteList}" hidden></div>
+                                <div>
+                                    <input id="tags" type="text" th:field="*{tags}"
+                                           aria-describedby="tagsHelp" placeholder="관심있는 주제를 입력하세요.">
+                                    <small id="tagsHelp" class="form-text text-muted mt-2">
+                                        최대 10개의 태그가 등록 가능합니다.
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-block mt-5" type="submit" aria-describedby="submitHelp">
+                                    작성하기
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script th:replace="fragments.html :: script-fragment"></script>
+    <script th:replace="fragments.html :: ajax-csrf-header"></script>
+    <script src="/node_modules/@yaireo/tagify/dist/tagify.min.js"></script>
+    <script type="application/javascript">
+      $(function() {
+         function tagRequest(url, tagTitle) {
+            $.ajax({
+                dataType: "json",
+                autocomplete: {
+                    enabled: true,
+                    rightKey: true,
+                },
+                contentType: "application/json; charset=utf-8",
+                method: "POST",
+                url: "/post/tags" + url,
+                data: JSON.stringify({'tagTitle': tagTitle})
+            }).done(function (data, status) {
+            });
+         };
+
+          function onAdd(e) {
+            const tagVal = document.querySelector("#hiddenTags");
+            if(tagVal.value === '') {
+              tagVal.value = '|' + e.detail.data.value + '|';
+            } else {
+              tagVal.value = tagVal.value + e.detail.data.value + '|';
+            }
+            tagRequest("/add", e.detail.data.value);
+          };
+
+          function onRemove(e) {
+            const tagVal = document.querySelector("#hiddenTags");
+            tagVal.value = tagVal.value.replace('|' + e.detail.data.value + '|', '|');
+          }
+
+       var tagInput = document.querySelector('input[name=tags]')
+       let whiteList = document.querySelector("#whiteList").textContent;
+
+        // init Tagify script on the above inputs
+        var tagify = new Tagify(tagInput, {
+          pattern: /^[ㅋㅎ가-힣A-z0-9._-]{1,15}$/,
+          editTags: false,
+          maxTags: 10,
+          whitelist: JSON.parse(whiteList),
+          dropdown: {
+            maxItems: Infinity,
+            position: "input",
+            enabled: 0,
+            closeOnSelect: true
+          }
+        })
+
+        tagify.on("add", onAdd);
+        tagify.on("remove", onRemove)
+      });
+    </script>
+    <script src="/node_modules/cropper/dist/cropper.min.js"></script>
+    <script src="/node_modules/jquery-cropper/dist/jquery-cropper.min.js"></script>
+    <script type="application/javascript">
+        $(function() {
+            cropper = '';
+            let $confirmBtn = $("#confirm-button");
+            let $resetBtn = $("#reset-button");
+            let $cutBtn = $("#cut-button");
+            let $currentProfileImage = $("#current-profile-image");
+            let $newProfileImage = $("#new-profile-image");
+            let $resultImage = $("#cropped-new-profile-image");
+            let $profileImage = $("#profileImage");
+
+            $newProfileImage.hide();
+            $cutBtn.hide();
+            $resetBtn.hide();
+            $confirmBtn.hide();
+
+            $("#profile-image-file").change(function(e) {
+                if(e.target.files.length === 1) {
+                    const reader = new FileReader();
+
+                    reader.onload = e => {
+                        if(e.target.result) {
+                            let img = document.createElement("img");
+                            img.id = 'new-profile';
+                            img.src = e.target.result;
+                            img.setAttribute('width', '100%');
+
+                            $newProfileImage.html(img);
+                            $newProfileImage.show();
+                            $currentProfileImage.hide();
+
+                            let $newImage = $(img);
+                            $newImage.cropper({aspectRatio: 1});
+                            cropper = $newImage.data("cropper");
+
+                            $cutBtn.show();
+                            $confirmBtn.hide();
+                            $resetBtn.show();
+                        }
+                    }
+
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+
+            $resetBtn.click(function () {
+                $currentProfileImage.show();
+                $newProfileImage.hide();
+                $resultImage.hide();
+                $resetBtn.hide();
+                $cutBtn.hide();
+                $confirmBtn.hide();
+                $profileImage.val('');
+            });
+
+            $cutBtn.click(function() {
+                let dataUrl = cropper.getCroppedCanvas().toDataURL();
+                let newImage = document.createElement("img");
+
+                newImage.id = "cropped-new-profile-image";
+                newImage.src = dataUrl;
+                newImage.width = 150;
+
+                $resultImage.html(newImage);
+                $resultImage.show();
+                $confirmBtn.show();
+
+                $confirmBtn.click(function () {
+                    $newProfileImage.html(newImage);
+                    $cutBtn.hide();
+                    $confirmBtn.hide();
+                    $profileImage.val(dataUrl);
+                    $profileImage.val(dataUrl);
+                })
+            })
+        });
+    </script>
+
+    <script type="application/javascript">
+        $(function () {
+            'use strict';
+
+            window.addEventListener('load', function () {
+                var forms = document.getElementsByClassName('needs-validation');
+
+                // Loop over them and prevent submission
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false)
+                })
+            }, false)
+        })
+    </script>
+</body>
+</html>

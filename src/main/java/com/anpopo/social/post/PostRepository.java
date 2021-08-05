@@ -10,8 +10,8 @@ import java.util.List;
 @Transactional(readOnly = true)
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @EntityGraph(attributePaths = {"tags"})
-    List<Post> findAllWithTagsByAccount(Account account);
+    @EntityGraph(attributePaths = {"tags", "account"})
+    Post findPostWithTagsAndAccountById(Long id);
 
     @EntityGraph(attributePaths = {"tags"})
     Post findPostWithTagsById(Long id);
