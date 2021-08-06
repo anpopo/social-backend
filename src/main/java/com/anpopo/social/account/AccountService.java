@@ -1,6 +1,8 @@
 package com.anpopo.social.account;
 
 import com.anpopo.social.account.domain.Account;
+import com.anpopo.social.account.event.FollowRequestEvent;
+import com.anpopo.social.account.event.FollowResponseEvent;
 import com.anpopo.social.account.form.SignUpForm;
 import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.account.domain.Follow;
@@ -13,6 +15,7 @@ import com.anpopo.social.settings.form.NotificationForm;
 import com.anpopo.social.settings.form.ProfileForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,6 +46,7 @@ public class AccountService implements UserDetailsService {
     private final TemplateEngine templateEngine;
     private final AppProperties appProperties;
     private final FollowRepository followRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public void signUpProcess(SignUpForm signUpForm) {
 
@@ -54,6 +58,7 @@ public class AccountService implements UserDetailsService {
         
         // 로그인 처리
         login(newAccount);
+
     }
 
     public void login(Account account) {
@@ -214,32 +219,37 @@ public class AccountService implements UserDetailsService {
             // 새로운 follow 객체를 만들어 준다.
             Follow follow = followRepository.save( new Follow(findAccount, requestAccount));
 
-//            // TODO findAccount 에 알람 보내주기
-//            findAccount.addFollowers(follow);
-//            requestAccount.addFollowing(follow);
+            findAccount.addFollowers(follow);
+            requestAccount.addFollowing(follow);
+
+            eventPublisher.publishEvent(new FollowRequestEvent(follow));
         }
     }
 
     public void followCancel(Account findAccount, Account requestAccount) {
         Follow follow = followRepository.findFollowByFollowedAndFollow(findAccount, requestAccount);
         if (follow != null) {
-            // 새로운 follow 객체를 만들어 준다.
-            followRepository.delete(follow);
+
+            findAccount.deleteFollowers(follow);
+            requestAccount.deleteFollowing(follow);
+//            // 새로운 follow 객체를 만들어 준다.
+//            followRepository.delete(follow);
         }
     }
     public void followAccept(Account followAccount, Account requestAccount) {
         Follow follow = followRepository.findFollowByFollowedAndFollow(followAccount, requestAccount);
         if (follow != null) {
             follow.acceptFollowRequest();
+
+            eventPublisher.publishEvent(new FollowResponseEvent(follow));
         }
     }
 
-    public void followReject(Account followAccount, Account requestAccount) {
-        Follow follow = followRepository.findFollowByFollowedAndFollow(followAccount, requestAccount);
-        if (follow != null) {
-            followAccount.getFollowers().remove(follow);
-            requestAccount.getFollowing().remove(follow);
-            followRepository.delete(follow);
-        }
-    }
+//    public void followReject(Account followAccount, Account requestAccount) {
+//        Follow follow = followRepository.findFollowByFollowedAndFollow(followAccount, requestAccount);
+//        if (follow != null) {
+//            followAccount.deleteFollowers(follow);
+//            requestAccount.deleteFollowing(follow);
+//        }
+//    }
 }

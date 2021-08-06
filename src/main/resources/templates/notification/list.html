@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head th:replace="fragments.html :: head-fragment"></head>
+<body>
+<nav th:replace="fragments.html :: nav-fragment"></nav>
+    <div class="container">
+        <div class="row py-5 text-center">
+            <div class="col-3">
+                <ul class="list-group">
+
+                    <a href="#" th:href="@{/notifications}" th:classappend="${isNew}? active"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        읽지 않은 알림
+                        <span th:text="${numberOfNotChecked}">3</span>
+                    </a>
+
+                    <a href="#" th:href="@{/notifications/old}" th:classappend="${!isNew}? active"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        읽은 알림
+                        <span th:text="${numberOfChecked}">0</span>
+                    </a>
+
+                </ul>
+
+                <ul class="list-group mt-4">
+                    <a href="#" th:if="${followNotifications.size() > 0}"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        팔로우 관련 알림
+                        <span th:text="${followNotifications.size()}">3</span>
+                    </a>
+                    <a href="#" th:if="${followingPostingNotifications.size() > 0}"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        팔로잉 포스팅 알림
+                        <span th:text="${followingPostingNotifications.size()}">0</span>
+                    </a>
+                    <a href="#" th:if="${interestPostingNotifications.size() > 0}"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        관심 주제 포스팅 알림
+                        <span th:text="${interestPostingNotifications.size()}">0</span>
+                    </a>
+                    <a href="#" th:if="${etc.size() > 0}"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        기타 알림
+                        <span th:text="${etc.size()}">0</span>
+                    </a>
+                </ul>
+
+                <ul class="list-group mt-4" th:if="${numberOfChecked > 0}">
+                    <form th:action="@{/notifications/delete}" th:method="post">
+                        <button type="submit" class="btn btn-block btn-outline-warning" aria-describedby="deleteHelp">
+                            읽은 알림 삭제
+                        </button>
+                        <small id="deleteHelp">삭제하지 않아도 한달이 지난 알림은 사라집니다.</small>
+                    </form>
+                </ul>
+            </div>
+            <div class="col-9">
+                <div class="card" th:if="${notifications.size() == 0}">
+                    <div class="card-header">
+                        알림 메시지가 없습니다.
+                    </div>
+                </div>
+
+                <div class="card" th:if="${followNotifications.size() > 0}">
+                    <div class="card-header">
+                        팔로우 신청 및 응답 관련 소식이 있습니다.
+                    </div>
+                    <div th:replace="fragments.html :: notification-list (notifications=${followNotifications})"></div>
+                </div>
+
+                <div class="card mt-4" th:if="${followingPostingNotifications.size() > 0}">
+                    <div class="card-header">
+                        팔로잉 하는 사람의 포스팅 관련 소식이 있습니다.
+                    </div>
+                    <div th:replace="fragments.html :: notification-list (notifications=${followingPostingNotifications})"></div>
+                </div>
+
+                <div class="card mt-4" th:if="${interestPostingNotifications.size() > 0}">
+                    <div class="card-header">
+                        관심 주제로 선택된 포스팅 관련 소식이 있습니다.
+                    </div>
+                    <div th:replace="fragments.html :: notification-list (notifications=${interestPostingNotifications})"></div>
+                </div>
+
+                <div class="card mt-4" th:if="${etc.size() > 0}">
+                    <div class="card-header">
+                        그 외의 소식들이 있습니다.
+                    </div>
+                    <div th:replace="fragments.html :: notification-list (notifications=${etc})"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:replace="fragments.html :: script-fragment"></script>
+    <script src="/node_modules/moment/min/moment-with-locales.min.js"></script>
+    <script type="application/javascript">
+        $(function () {
+            moment.locale('ko');
+            $(".date-time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LLL');
+            });
+            $(".date").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LL');
+            });
+            $(".weekday").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('dddd');
+            });
+            $(".time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LT');
+            });
+            $(".calendar").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").calendar();
+            });
+            $(".fromNow").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").fromNow();
+            });
+            $(".date-weekday-time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LLLL');
+            });
+        })
+    </script>
+</body>
+</html>

@@ -19,10 +19,12 @@ public class Follow {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 요청 받는 사람
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "followed_id")
     private Account followed;
 
+    // 요청 하는 사람
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follow_id")
     private Account follow;

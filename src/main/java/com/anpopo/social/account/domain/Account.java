@@ -100,10 +100,10 @@ public class Account {
     // 관심 있는 주제로 포스팅이 올라온 경우 알람 설정
     private boolean interestSubjectPostingByWeb = false;
 
-    @OneToMany(mappedBy = "followed", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "followed", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Follow> followers = new HashSet<>();
 
-    @OneToMany(mappedBy = "follow", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "follow", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Follow> following = new HashSet<>();
 
     public void generateEmailCheckToken() {
@@ -164,20 +164,28 @@ public class Account {
         this.password = password;
     }
 
-//    public void addFollowers(Follow follow) {
-//        this.followers.add(follow);
-//    }
-//
-//    public void addFollowing(Follow follow) {
-//        this.following.add(follow);
-//    }
-//
-//
-//    public void removeFollowers(Follow follow) {
-//        this.followers.remove(follow);
-//    }
-//
-//    public void removeFollowing(Follow follow) {
-//        this.following.remove(follow);
-//    }
+    public void addFollowers(Follow follow) {
+        this.followers.add(follow);
+    }
+
+    public void addFollowing(Follow follow) {
+        this.following.add(follow);
+    }
+
+
+    public void removeFollowers(Follow follow) {
+        this.followers.remove(follow);
+    }
+
+    public void removeFollowing(Follow follow) {
+        this.following.remove(follow);
+    }
+
+    public void deleteFollowers(Follow follow) {
+        this.followers.remove(follow);
+    }
+
+    public void deleteFollowing(Follow follow) {
+        this.following.remove(follow);
+    }
 }

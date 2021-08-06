@@ -305,7 +305,7 @@ public class AccountController {
 
         Account followAccount = accountRepository.findAccountWithFollowersById(account.getId());
 
-        accountService.followReject(followAccount, requestAccount);
+        accountService.followCancel(followAccount, requestAccount);
         redirectAttributes.addFlashAttribute("message", "'" + requestAccount.getNickname() + "' 님의 팔로우 요청을 거절하셨습니다");
         return "redirect:/settings/followers";
     }
