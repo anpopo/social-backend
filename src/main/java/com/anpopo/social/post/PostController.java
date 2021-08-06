@@ -4,6 +4,7 @@ import aj.org.objectweb.asm.TypeReference;
 import com.anpopo.social.account.CurrentUser;
 import com.anpopo.social.account.domain.Account;
 import com.anpopo.social.account.repository.AccountRepository;
+import com.anpopo.social.interest.InterestRepository;
 import com.anpopo.social.tag.Tag;
 import com.anpopo.social.tag.TagRepository;
 import com.anpopo.social.tag.TagService;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 @Controller
 public class PostController {
 
-    private final AccountRepository accountRepository;
+    private final InterestRepository interestRepository;
     private final PostService postService;
     private final PostRepository postRepository;
     private final TagService tagService;
@@ -43,15 +44,18 @@ public class PostController {
 
         List<String> whiteList = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
         model.addAttribute("whiteList", objectMapper.writeValueAsString(whiteList));
+        model.addAttribute("interests", interestRepository.findAll());
 
         return "post/form";
     }
 
     @PostMapping
-    public String createPost(@CurrentUser Account account, @Valid PostForm postForm, Errors errors, Model model) {
+    public String createPost(@CurrentUser Account account, @Valid PostForm postForm, Errors errors,
+                             String interests, Model model) {
         if (errors.hasErrors()) {
             model.addAttribute(account);
             model.addAttribute(postForm);
+            model.addAttribute("interests", interestRepository.findAll());
             return "post/form";
         }
         // 포스트 저장
@@ -65,18 +69,25 @@ public class PostController {
         model.addAttribute(account);
 
         // 태그를 포함한 포스팅 가져오기
-        Post post = postRepository.findPostWithTagsById(id);
+        Post post = postRepository.findPostWithTagsWithInterestById(id);
+
+        if (post == null) {
+            throw new IllegalArgumentException("포스팅에 대한 잘못된 접근입니다.");
+        }
+
         PostForm postForm = PostForm.builder()
                 .id(post.getId())
                 .context(post.getContext())
                 .tags(objectMapper.writeValueAsString(post.getTags().stream().map(Tag::getTitle)))
                 .hiddenTags("|" + post.getTags().stream().map(Tag::getTitle).collect(Collectors.joining("|")) + "|")
+                .interest(post.getInterest().getInterest())
                 .build();
 
         model.addAttribute(postForm);
 
         List<String> whiteList = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
         model.addAttribute("whiteList", objectMapper.writeValueAsString(whiteList));
+        model.addAttribute("interests", interestRepository.findAll());
 
         return "post/edit";
     }
@@ -86,6 +97,7 @@ public class PostController {
         if (errors.hasErrors()) {
             model.addAttribute(account);
             model.addAttribute(postForm);
+            model.addAttribute("interests", interestRepository.findAll());
             return "post/form";
         }
         postService.updatePost(id, postForm);
@@ -93,8 +105,9 @@ public class PostController {
         return "redirect:/";
     }
 
-    @DeleteMapping("/{id}")
-    public String deletePost(@CurrentUser Account account) {
+    @PostMapping("/{id}/delete")
+    public String deletePost(@CurrentUser Account account, @PathVariable Long id) {
+        postService.deletePost(id);
         return "redirect:/";
     }
 

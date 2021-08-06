@@ -15,6 +15,7 @@ public class PostForm {
     private String context;
     private String hiddenTags;
     private String tags;
+    private String interest;
     private String postImage1;
     private String postImage2;
     private String postImage3;

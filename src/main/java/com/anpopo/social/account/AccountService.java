@@ -190,12 +190,18 @@ public class AccountService implements UserDetailsService {
 
     public void addInterest(Account account, Interest interest) {
         Optional<Account> findAccount = accountRepository.findById(account.getId());
-        findAccount.ifPresent(a -> a.getInterests().add(interest));
+        findAccount.ifPresent(a -> {
+            a.getInterests().add(interest);
+            interest.addNumberOfAccount();
+        });
     }
 
     public void removeInterest(Account account, Interest interest) {
         Optional<Account> findAccount = accountRepository.findById(account.getId());
-        findAccount.ifPresent(a -> a.getInterests().remove(interest));
+        findAccount.ifPresent(a -> {
+            a.getInterests().remove(interest);
+            interest.minusNumberOfAccount();
+        });
     }
 
     /**

@@ -2,6 +2,8 @@ package com.anpopo.social.post;
 
 import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.account.domain.Account;
+import com.anpopo.social.interest.Interest;
+import com.anpopo.social.interest.InterestRepository;
 import com.anpopo.social.tag.Tag;
 import com.anpopo.social.tag.TagRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +23,18 @@ public class PostService {
     private final AccountRepository accountRepository;
     private final PostRepository postRepository;
     private final TagRepository tagRepository;
+    private final InterestRepository interestRepository;
+
 
     public void savePost(Account account, PostForm postForm) {
+        // 관심 주제
+        Interest interest = interestRepository.findByInterest(postForm.getInterest());
+        interest.addNumberOfPost();
 
         Post post = new Post(
                 postForm.getContext(),
                 account,
+                interest,
                 postForm.getPostImage1(), postForm.getPostImage2(), postForm.getPostImage3()
         );
 
@@ -42,13 +50,19 @@ public class PostService {
 
     public void updatePost(Long id, PostForm postForm) {
 
-        Post post = postRepository.findPostWithTagsById(id);
+        Post post = postRepository.findPostWithTagsWithInterestById(id);
+
+        Interest interest = interestRepository.findByInterest(postForm.getInterest());
 
         // 태그 저장
         List<String> tagTitles = Arrays.stream(postForm.getHiddenTags().split("\\|")).filter(t -> !t.isBlank()).collect(Collectors.toList());
         Set<Tag> tags = tagRepository.findByTitleIn(tagTitles);
 
-        post.updatePost(postForm.getContext(), tags, postForm.getPostImage1(), postForm.getPostImage2(), postForm.getPostImage3() );
+        post.updatePost(postForm.getContext(), tags, interest, postForm.getPostImage1(), postForm.getPostImage2(), postForm.getPostImage3() );
 
+    }
+
+    public void deletePost(Long id) {
+        postRepository.deleteById(id);
     }
 }

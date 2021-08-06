@@ -12,6 +12,15 @@
                 <div class="row">
                     <div class="col-12">
                         <form class="col-md-12" th:object="${postForm}" novalidate th:action="@{|/post/${postForm.id}|}" method="post">
+                            <div class="form-group mt-3">
+                                <select th:field="*{interest}" class="needs-validation custom-select mr-sm-2" id="interest"
+                                        aria-describedby="interestsHelp" required>
+                                    <option th:each="interest : ${interests}" th:value="${interest.interest}" th:text="${interest.interest}"></option>
+                                </select>
+                                <small id="interestsHelp" class="form-text text-muted mt-2">
+                                    포스팅의 주제를 선택해 주세요.
+                                </small>
+                            </div>
                             <div class="needs-validation form-group mt-4">
                                 <textarea id="context" th:field="*{context}" class="form-control" rows="10" th:utext="*{context}"
                                           placeholder="원하는 내용을 작성해 주세요." aria-describedby="contextHelp" maxlength="1000"></textarea>
@@ -39,9 +48,33 @@
                                 </button>
                             </div>
                         </form>
+
+                        <button class="btn btn-outline-danger btn-block mt-3" data-toggle="modal" data-target="#delete">
+                            포스팅 삭제
+                        </button>
+                        <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="deleteTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>해당 포스팅을 삭제 하시겠습니까?</p>
+                                        <p><strong>확인</strong>하시면 포스팅과 모든 관련된 이미지가 삭제됩니다.</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                                        <form th:action="@{|/post/${postForm.id}/delete|}" th:method="post">
+                                            <button class="btn btn-primary" type="submit" aria-describedby="submitHelp">확인</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>

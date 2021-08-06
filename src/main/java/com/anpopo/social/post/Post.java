@@ -1,6 +1,7 @@
 package com.anpopo.social.post;
 
 import com.anpopo.social.account.domain.Account;
+import com.anpopo.social.interest.Interest;
 import com.anpopo.social.tag.Tag;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -41,9 +42,14 @@ public class Post {
     @Lob
     private String postImage3;
 
-    public Post(String context, Account account, String... postImages) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "interest_id")
+    private Interest interest;
+
+    public Post(String context, Account account, Interest interest, String... postImages) {
         this.context = context;
         this.account = account;
+        this.interest = interest;
         this.postedAt = LocalDateTime.now();
 
     }
@@ -52,8 +58,12 @@ public class Post {
         this.tags = tags;  // 1, 2, 3
     }
 
-    public void updatePost(String context, Set<Tag> tags, String... postImages) {
+    public void updatePost(String context, Set<Tag> tags, Interest interest, String... postImages) {
         this.context = context;
+        if (!this.interest.equals(interest)) {
+            this.interest = interest;
+            interest.minusNumberOfPost();
+        }
         this.tags.clear();
         this.tags.addAll(tags);
         this.modifiedAt = LocalDateTime.now();

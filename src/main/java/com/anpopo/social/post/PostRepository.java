@@ -15,4 +15,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @EntityGraph(attributePaths = {"tags"})
     Post findPostWithTagsById(Long id);
+
+    @EntityGraph(attributePaths = {"tags", "interest"})
+    Post findPostWithTagsWithInterestById(Long id);
 }

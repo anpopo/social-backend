@@ -22,6 +22,8 @@ public class Interest {
 
     private Integer numberOfAccount = 0;
 
+    private Integer numberOfPost = 0;
+
     private boolean deleted = false;
 
     private boolean hotInterest = false;
@@ -30,5 +32,21 @@ public class Interest {
 
     public void createNewInterest(String interest) {
         this.interest = interest;
+    }
+
+    public void addNumberOfPost() {
+        this.numberOfPost++;
+    }
+
+    public void minusNumberOfPost() {
+        this.numberOfPost--;
+    }
+
+    public void addNumberOfAccount() {
+        this.numberOfAccount++;
+    }
+
+    public void minusNumberOfAccount() {
+        this.numberOfAccount--;
     }
 }
