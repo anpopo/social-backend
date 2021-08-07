@@ -4,9 +4,12 @@ import com.anpopo.social.account.repository.AccountRepository;
 import com.anpopo.social.account.domain.Account;
 import com.anpopo.social.interest.Interest;
 import com.anpopo.social.interest.InterestRepository;
+import com.anpopo.social.post.event.FollowingPostEvent;
+import com.anpopo.social.post.event.InterestPostEvent;
 import com.anpopo.social.tag.Tag;
 import com.anpopo.social.tag.TagRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +27,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final TagRepository tagRepository;
     private final InterestRepository interestRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     public void savePost(Account account, PostForm postForm) {
@@ -45,6 +49,9 @@ public class PostService {
         post.saveTags(tags);
 
         postRepository.save(post);
+
+        eventPublisher.publishEvent(new FollowingPostEvent(account, post.getId()));
+        eventPublisher.publishEvent(new InterestPostEvent(interest, post.getId()));
     }
 
 

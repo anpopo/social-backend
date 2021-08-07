@@ -2,8 +2,12 @@ package com.anpopo.social.account.repository;
 
 import com.anpopo.social.account.domain.Account;
 import com.anpopo.social.account.domain.QAccount;
+import com.anpopo.social.interest.Interest;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
+
+import java.util.List;
 
 public class AccountRepositoryQuerydslImpl extends QuerydslRepositorySupport implements AccountRepositoryQuerydsl{
     public AccountRepositoryQuerydslImpl() {
@@ -27,5 +31,15 @@ public class AccountRepositoryQuerydslImpl extends QuerydslRepositorySupport imp
 //
 //        return query.fetchOne();
         return null;
+    }
+
+    @Override
+    public List<Account> findAccountByInterest(Interest interest) {
+        JPQLQuery<Account> query = from(QAccount.account)
+                .where(QAccount.account.deleted.isFalse()
+                        .and(QAccount.account.interests.any().in(interest)));
+
+        return query.fetch();
+
     }
 }
