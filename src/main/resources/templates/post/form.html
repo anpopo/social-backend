@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" >
 <head th:replace="fragments.html :: head-fragment"></head>
+<style>
+    .anpopo-file-label {
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 1;
+      height: calc(2.25rem + 2px);
+      padding: 0.375rem 0.75rem;
+      line-height: 1.5;
+      color: #495057;
+      background-color: #fff;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+</style>
 <body>
     <nav th:replace="fragments.html :: nav-fragment"></nav>
     <div class="container">
@@ -42,18 +63,22 @@
                                     </small>
                                 </div>
                             </div>
-                            <div class="form-group mt-3">
-                                <div class="custom-file col-md-3">
-                                    <input type="file" class="custom-file-input" id="post-image" aria-describedby="post-image">
-                                    <label class="custom-file-label" for="post-image">포스팅 이미지 추가</label>
+                            <div class="form-group mt-5 d-flex flex-row" style="height: 125px;">
+                                <div class="custom-file col-md-3" style="height: inherit;">
+                                    <input type="file" class="custom-file-input" style="height: inherit;" id="post-image-file" aria-describedby="post-image">
+                                    <label class="anpopo-file-label" style="height: inherit; text-align: center;" for="post-image">
+                                        <i class="fa fa-plus-circle d-inline-block" style="font-size: 3rem" aria-hidden="true"></i>
+                                        <br />
+                                        <span class="d-inline-block mt-2" style="font-size: 1.875rem"><strong>이미지 선택</strong></span>
+                                    </label>
                                 </div>
-                                <div id="postImage1" class="col-md-3">
+                                <div id="postImage1" class="col-md-3" style="border: 1px solid yellow;">
 
                                 </div>
-                                <div id="postImage2" class="col-md-3">
+                                <div id="postImage2" class="col-md-3" style="border: 1px solid blue;">
 
                                 </div>
-                                <div id="postImage3" class="col-md-3">
+                                <div id="postImage3" class="col-md-3" style="border: 1px solid green;">
 
                                 </div>
                             </div>

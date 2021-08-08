@@ -75,6 +75,10 @@ public class PostController {
             throw new IllegalArgumentException("포스팅에 대한 잘못된 접근입니다.");
         }
 
+        if (!post.getAccount().equals(account)) {
+            throw new IllegalArgumentException("본인이 아니면 수정할 수 없습니다.");
+        }
+
         PostForm postForm = PostForm.builder()
                 .id(post.getId())
                 .context(post.getContext())
@@ -100,7 +104,13 @@ public class PostController {
             model.addAttribute("interests", interestRepository.findAll());
             return "post/form";
         }
-        postService.updatePost(id, postForm);
+        Post post = postRepository.findPostWithTagsWithInterestById(id);
+
+        if (!post.getAccount().equals(account)) {
+            throw new IllegalArgumentException("본인이 아니면 수정할 수 없습니다.");
+        }
+
+        postService.updatePost(post, postForm);
 
         return "redirect:/";
     }

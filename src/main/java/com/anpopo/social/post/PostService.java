@@ -55,10 +55,7 @@ public class PostService {
     }
 
 
-    public void updatePost(Long id, PostForm postForm) {
-
-        Post post = postRepository.findPostWithTagsWithInterestById(id);
-
+    public void updatePost(Post post, PostForm postForm) {
         Interest interest = interestRepository.findByInterest(postForm.getInterest());
 
         // 태그 저장
