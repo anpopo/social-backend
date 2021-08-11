@@ -62,7 +62,8 @@ public class PostService {
         List<String> tagTitles = Arrays.stream(postForm.getHiddenTags().split("\\|")).filter(t -> !t.isBlank()).collect(Collectors.toList());
         Set<Tag> tags = tagRepository.findByTitleIn(tagTitles);
 
-        post.updatePost(postForm.getContext(), tags, interest, postForm.getPostImage1(), postForm.getPostImage2(), postForm.getPostImage3() );
+        post.updatePost(postForm.getContext(), tags, interest,
+                postForm.getPostImage1(), postForm.getPostImage2(), postForm.getPostImage3() );
 
     }
 

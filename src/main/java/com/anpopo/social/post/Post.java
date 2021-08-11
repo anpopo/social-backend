@@ -52,6 +52,9 @@ public class Post {
         this.interest = interest;
         this.postedAt = LocalDateTime.now();
 
+        postImage1 = postImages[0];
+        postImage2 = postImages[1];
+        postImage3 = postImages[2];
     }
 
     public void saveTags(Set<Tag> tags) {
@@ -67,6 +70,11 @@ public class Post {
         this.tags.clear();
         this.tags.addAll(tags);
         this.modifiedAt = LocalDateTime.now();
+
+        this.postImage1 = postImages[0];
+        this.postImage2 = postImages[1];
+        this.postImage3 = postImages[2];
+
 
     }
 

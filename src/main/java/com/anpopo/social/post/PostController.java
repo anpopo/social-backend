@@ -51,10 +51,12 @@ public class PostController {
 
     @PostMapping
     public String createPost(@CurrentUser Account account, @Valid PostForm postForm, Errors errors,
-                             String interests, Model model) {
+                             String interests, Model model) throws JsonProcessingException {
         if (errors.hasErrors()) {
             model.addAttribute(account);
             model.addAttribute(postForm);
+            List<String> whiteList = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
+            model.addAttribute("whiteList", objectMapper.writeValueAsString(whiteList));
             model.addAttribute("interests", interestRepository.findAll());
             return "post/form";
         }
@@ -76,7 +78,7 @@ public class PostController {
         }
 
         if (!post.getAccount().equals(account)) {
-            throw new IllegalArgumentException("본인이 아니면 수정할 수 없습니다.");
+            throw new IllegalArgumentException("작성자 본인이 아니면 접근할 수 없습니다.");
         }
 
         PostForm postForm = PostForm.builder()
@@ -85,6 +87,9 @@ public class PostController {
                 .tags(objectMapper.writeValueAsString(post.getTags().stream().map(Tag::getTitle)))
                 .hiddenTags("|" + post.getTags().stream().map(Tag::getTitle).collect(Collectors.joining("|")) + "|")
                 .interest(post.getInterest().getInterest())
+                .postImage1(post.getPostImage1())
+                .postImage2(post.getPostImage2())
+                .postImage3(post.getPostImage3())
                 .build();
 
         model.addAttribute(postForm);
@@ -97,10 +102,12 @@ public class PostController {
     }
 
     @PostMapping("/{id}")
-    public String updatePost (@CurrentUser Account account, @PathVariable Long id, @Valid PostForm postForm, Errors errors, Model model){
+    public String updatePost (@CurrentUser Account account, @PathVariable Long id, @Valid PostForm postForm, Errors errors, Model model) throws JsonProcessingException {
         if (errors.hasErrors()) {
             model.addAttribute(account);
             model.addAttribute(postForm);
+            List<String> whiteList = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
+            model.addAttribute("whiteList", objectMapper.writeValueAsString(whiteList));
             model.addAttribute("interests", interestRepository.findAll());
             return "post/form";
         }

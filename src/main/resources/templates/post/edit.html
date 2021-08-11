@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" >
 <head th:replace="fragments.html :: head-fragment"></head>
+<style>
+    .post-file-label {
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 1;
+      height: calc(2.25rem + 2px);
+      padding: 0.375rem 0.75rem;
+      line-height: 1.5;
+      color: #495057;
+      background-color: #fff;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .pointer-hover:hover {
+        cursor: pointer;
+    }
+
+</style>
 <body>
     <nav th:replace="fragments.html :: nav-fragment"></nav>
     <div class="container">
@@ -11,7 +37,7 @@
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <form class="col-md-12" th:object="${postForm}" novalidate th:action="@{|/post/${postForm.id}|}" method="post">
+                        <form class="col-md-12 needs-validation" th:object="${postForm}" novalidate th:action="@{|/post/${postForm.id}|}" method="post">
                             <div class="form-group mt-3">
                                 <select th:field="*{interest}" class="needs-validation custom-select mr-sm-2" id="interest"
                                         aria-describedby="interestsHelp" required>
@@ -20,8 +46,11 @@
                                 <small id="interestsHelp" class="form-text text-muted mt-2">
                                     포스팅의 주제를 선택해 주세요.
                                 </small>
+                                <small class="form-text text-danger" th:if="${#fields.hasErrors('interest')}" th:errors="*{interest}">
+                                    관심 주제를 선택해 주세요.
+                                </small>
                             </div>
-                            <div class="needs-validation form-group mt-4">
+                            <div class="form-group mt-4">
                                 <textarea id="context" th:field="*{context}" class="form-control" rows="10" th:utext="*{context}"
                                           placeholder="원하는 내용을 작성해 주세요." aria-describedby="contextHelp" maxlength="1000"></textarea>
                                 <small id="contextHelp" class="form-text text-muted mt-2">
@@ -42,16 +71,70 @@
                                     </small>
                                 </div>
                             </div>
+                            <div class="form-group mt-5 d-flex flex-row align-items-center" style="height: 170px;">
+                                <div class="custom-file col-md-3 pointer" style="height: inherit;">
+                                    <input type="file" class="custom-file-input pointer-hover"
+                                           style="height: inherit;" id="post-image-file" aria-describedby="post-image">
+                                    <label class="post-file-label pointer-hover" style="height: inherit;" for="post-image-file">
+                                        <i class="fa fa-plus-circle d-inline-block" style="font-size: 3rem" aria-hidden="true"></i>
+                                        <br />
+                                        <span class="d-inline-block mt-2" style="font-size: 1.875rem"><strong>이미지 선택</strong></span>
+                                        <small>최대 3장 선택이 가능합니다.</small>
+                                    </label>
+                                    <input id="postImage1" type="hidden" th:field="*{postImage1}" class="form-control" required>
+                                    <input id="postImage2" type="hidden" th:field="*{postImage2}" class="form-control">
+                                    <input id="postImage3" type="hidden" th:field="*{postImage3}" class="form-control">
+                                </div>
+                                <div class="col-md-3" id="post-image-card-div-1">
+                                    <div th:if="${!#strings.isEmpty(postForm?.postImage1)}" class="card text-center">
+                                        <div class="p-2">
+                                            <img id="post-image-card-1" th:src="*{postImage1}" width="100%" />
+                                        </div>
+                                        <div class="card-body" style="padding: 1px;">
+                                            <button class="btn btn-danger btn-sm delete-post">
+                                                삭제
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3" id="post-image-card-div-2">
+                                    <div th:if="${!#strings.isEmpty(postForm?.postImage2)}" class="card text-center">
+                                        <div class="p-2">
+                                            <img id="post-image-card-2" th:src="*{postImage2}" width="100%" />
+                                        </div>
+                                        <div class="card-body" style="padding: 1px;">
+                                            <button class="btn btn-danger btn-sm delete-post">
+                                                삭제
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3" id="post-image-card-div-3">
+                                    <div th:if="${!#strings.isEmpty(postForm?.postImage3)}" class="card text-center">
+                                        <div class="p-2">
+                                            <img id="post-image-card-3" th:src="*{postImage3}" width="100%" />
+                                        </div>
+                                        <div class="card-body" style="padding: 1px;">
+                                            <button class="btn btn-danger btn-sm delete-post">
+                                                삭제
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <small class="form-text text-danger" th:if="${#fields.hasErrors('postImage1')}" th:errors="*{postImage1}">
+                                1개의 이미지를 선택해 주세요.
+                            </small>
                             <div class="form-group">
                                 <button class="btn btn-primary btn-block mt-5" type="submit" aria-describedby="submitHelp">
                                     수정하기
                                 </button>
+                                <a class="btn btn-outline-danger btn-block mt-3" data-toggle="modal" data-target="#delete">
+                                    포스팅 삭제
+                                </a>
                             </div>
                         </form>
 
-                        <button class="btn btn-outline-danger btn-block mt-3" data-toggle="modal" data-target="#delete">
-                            포스팅 삭제
-                        </button>
                         <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="deleteTitle" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
@@ -74,6 +157,32 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="postImageModal" tabindex="-1" role="dialog" aria-labelledby="postImageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">포스트 이미지</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row justify-content-center">
+                        <div id="new-post-image" class="mt-3 col-10 row justify-content-center"></div>
+                        <div id="new-post-image-control" class="mt-3 col-10 row">
+                            <button class="btn btn-outline-primary btn-block" id="cut-button">자르기</button>
+                            <button class="btn btn-outline-success btn-block" id="confirm-button">확인</button>
+                            <button class="btn btn-outline-warning btn-block" id="reset-button">취소</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <div id="cropped-new-post-image-div" class="my-3"></div>
                 </div>
             </div>
         </div>
@@ -139,37 +248,59 @@
     <script src="/node_modules/jquery-cropper/dist/jquery-cropper.min.js"></script>
     <script type="application/javascript">
         $(function() {
+
+            const deleteButton = document.querySelector(".delete-post");
+            const deleteButtons = document.getElementsByClassName("delete-post")
+
+            for (let i = 0; i < deleteButtons.length; i++) {
+                deleteButtons[i].addEventListener('click', handleDeletePostImage);
+            }
+
             cropper = '';
+            let $postImage1 = $("#postImage1");
+            let $postImage2 = $("#postImage2");
+            let $postImage3 = $("#postImage3");
+
+            let $postImage1Div = $("#post-image-card-div-1");
+            let $postImage2Div = $("#post-image-card-div-2");
+            let $postImage3Div = $("#post-image-card-div-3");
+
             let $confirmBtn = $("#confirm-button");
             let $resetBtn = $("#reset-button");
             let $cutBtn = $("#cut-button");
-            let $currentProfileImage = $("#current-profile-image");
-            let $newProfileImage = $("#new-profile-image");
-            let $resultImage = $("#cropped-new-profile-image");
-            let $profileImage = $("#profileImage");
 
-            $newProfileImage.hide();
-            $cutBtn.hide();
-            $resetBtn.hide();
-            $confirmBtn.hide();
+            let $newPostImage = $("#new-post-image");
+            let $resultImage = $("#cropped-new-post-image-div");
 
-            $("#profile-image-file").change(function(e) {
+
+            $("#post-image-file").change(function(e) {
                 if(e.target.files.length === 1) {
                     const reader = new FileReader();
-
                     reader.onload = e => {
                         if(e.target.result) {
-                            let img = document.createElement("img");
-                            img.id = 'new-profile';
-                            img.src = e.target.result;
-                            img.setAttribute('width', '100%');
+                            $('#postImageModal').modal();
+                            $resultImage.html('');
+                            $newPostImage.html('');
+                            $newPostImage.hide();
+                            $cutBtn.hide();
+                            $confirmBtn.hide();
+                            $resetBtn.hide();
 
-                            $newProfileImage.html(img);
-                            $newProfileImage.show();
-                            $currentProfileImage.hide();
+                            let postImage = document.createElement("img");
+                            postImage.id = 'post-image';
+                            postImage.src = e.target.result;
+                            postImage.setAttribute('width', '100%');
 
-                            let $newImage = $(img);
-                            $newImage.cropper({aspectRatio: 1});
+                            $newPostImage.html(postImage);
+                            $newPostImage.show();
+
+                            let $newImage = $(postImage);
+                            $newImage.cropper({
+                                    aspectRatio: 1,
+                                    minContainerWidth: 500,
+                                    minContainerHeight: 400,
+                                    dragMode: 'move'
+                                });
                             cropper = $newImage.data("cropper");
 
                             $cutBtn.show();
@@ -177,41 +308,166 @@
                             $resetBtn.show();
                         }
                     }
-
                     reader.readAsDataURL(e.target.files[0]);
                 }
             });
 
             $resetBtn.click(function () {
-                $currentProfileImage.show();
-                $newProfileImage.hide();
-                $resultImage.hide();
-                $resetBtn.hide();
-                $cutBtn.hide();
-                $confirmBtn.hide();
-                $profileImage.val('');
+                $resultImage.html('');
+                $newPostImage.html('');
+                cropper = '';
+                $('#postImageModal').modal('hide')
             });
 
             $cutBtn.click(function() {
                 let dataUrl = cropper.getCroppedCanvas().toDataURL();
                 let newImage = document.createElement("img");
 
-                newImage.id = "cropped-new-profile-image";
+                newImage.id = "cropped-new-post-image";
                 newImage.src = dataUrl;
-                newImage.width = 150;
+                newImage.setAttribute('width', '200px');
+
+                $confirmBtn.val(dataUrl);
 
                 $resultImage.html(newImage);
                 $resultImage.show();
                 $confirmBtn.show();
+            });
 
-                $confirmBtn.click(function () {
-                    $newProfileImage.html(newImage);
-                    $cutBtn.hide();
-                    $confirmBtn.hide();
-                    $profileImage.val(dataUrl);
-                    $profileImage.val(dataUrl);
-                })
-            })
+            $confirmBtn.on('click', () => {
+                let url = $confirmBtn.val();
+
+                if ( $postImage1.val() === '') {
+                    let cardDiv = document.createElement('div');
+                    cardDiv.classList.add('card');
+                    cardDiv.classList.add('text-center');
+
+                    let imageDiv = document.createElement('div');
+                    imageDiv.classList.add('py-1');
+
+                    let postImage = document.createElement('img')
+                    postImage.id = 'post-image-card-1';
+                    postImage.src = url;
+                    postImage.setAttribute('width', '100%');
+
+                    imageDiv.append(postImage);
+
+                    let cardBodyDiv = document.createElement('div');
+                    cardBodyDiv.classList.add('card-body');
+                    cardBodyDiv.style.cssText = 'padding: 1px;'
+
+                    let deleteButton = document.createElement('button');
+                    deleteButton.classList.add('btn') ;
+                    deleteButton.classList.add('btn-danger');
+                    deleteButton.classList.add('btn-sm');
+                    deleteButton.innerText = '삭제';
+
+                    deleteButton.addEventListener('click', handleDeletePostImage);
+
+                    cardBodyDiv.append(deleteButton);
+
+                    cardDiv.append(imageDiv);
+                    cardDiv.append(cardBodyDiv);
+
+                    $postImage1Div.append(cardDiv);
+                    $postImage1.val(url);
+
+                } else if($postImage2.val() === '' ) {
+                    let cardDiv = document.createElement('div');
+                    cardDiv.classList.add('card');
+                    cardDiv.classList.add('text-center');
+
+                    let imageDiv = document.createElement('div');
+                    imageDiv.classList.add('py-1');
+
+                    let postImage = document.createElement('img')
+                    postImage.id = 'post-image-card-2';
+                    postImage.src = url;
+                    postImage.setAttribute('width', '100%');
+
+                    imageDiv.append(postImage);
+
+                    let cardBodyDiv = document.createElement('div');
+                    cardBodyDiv.classList.add('card-body');
+                    cardBodyDiv.style.cssText = 'padding: 1px;'
+
+                    let deleteButton = document.createElement('button');
+                    deleteButton.classList.add('btn') ;
+                    deleteButton.classList.add('btn-danger');
+                    deleteButton.classList.add('btn-sm');
+                    deleteButton.innerText = '삭제';
+
+                    deleteButton.addEventListener('click', handleDeletePostImage);
+
+                    cardBodyDiv.append(deleteButton);
+
+                    cardDiv.append(imageDiv);
+                    cardDiv.append(cardBodyDiv);
+
+                    $postImage2Div.html(cardDiv);
+                    $postImage2.val(url);
+
+                } else if ( $postImage3.val() === '' ) {
+                    let cardDiv = document.createElement('div');
+                    cardDiv.classList.add('card');
+                    cardDiv.classList.add('text-center');
+
+                    let imageDiv = document.createElement('div');
+                    imageDiv.classList.add('py-1');
+
+                    let postImage = document.createElement('img')
+                    postImage.id = 'post-image-card-3';
+                    postImage.src = url;
+                    postImage.setAttribute('width', '100%');
+
+                    imageDiv.append(postImage);
+
+                    let cardBodyDiv = document.createElement('div');
+                    cardBodyDiv.classList.add('card-body');
+                    cardBodyDiv.style.cssText = 'padding: 1px;'
+
+                    let deleteButton = document.createElement('button');
+                    deleteButton.classList.add('btn') ;
+                    deleteButton.classList.add('btn-danger');
+                    deleteButton.classList.add('btn-sm');
+                    deleteButton.innerText = '삭제';
+
+                    deleteButton.addEventListener('click', handleDeletePostImage);
+
+                    cardBodyDiv.append(deleteButton);
+
+                    cardDiv.append(imageDiv);
+                    cardDiv.append(cardBodyDiv);
+
+                    $postImage3Div.html(cardDiv);
+                    $postImage3.val(url);
+                }
+
+                $('#postImageModal').modal('hide')
+                $newPostImage.hide();
+                $resultImage.html('');
+                $resultImage.hide();
+                $resetBtn.hide();
+                $cutBtn.hide();
+                $confirmBtn.hide();
+            });
+
+            function handleDeletePostImage (event) {
+                event.preventDefault();
+
+                const div = event.target.parentElement.parentElement;
+
+                const id = div.parentElement.id;
+
+                if(id === 'post-image-card-div-1'){
+                    $postImage1.val('');
+                } else if(id === 'post-image-card-div-2'){
+                    $postImage2.val('');
+                } else if(id === 'post-image-card-div-3'){
+                    $postImage3.val('');
+                }
+                div.remove();
+            }
         });
     </script>
 
