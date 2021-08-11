@@ -101,6 +101,9 @@
                     <div class="tab-pane fade" th:classappend="${!isOwner} ? 'active show'" id="v-pills-follower" role="tabpanel" aria-labelledby="v-pills-follower-tab">
                         <div class="row-sm-12">
                             <div class="row">
+                                <div th:if="${#lists.isEmpty(followers)}">
+                                    <p>팔로워 계정이 없습니다.</p>
+                                </div>
                                 <div class="col-md-2" th:each="follower: ${followers}">
                                     <a class="card shadow-sm" th:href="@{|/profile/@${follower.nickname}|}" >
                                         <svg th:if="${#strings.isEmpty(follower.profileImage)}" class="img-fluid mx-auto rounded img-thumbnail"
@@ -118,6 +121,9 @@
                     <div class="tab-pane fade" id="v-pills-following" role="tabpanel" aria-labelledby="v-pills-following-tab">
                         <div class="row-sm-12">
                             <div class="row">
+                                <div th:if="${#lists.isEmpty(following)}">
+                                    <p>팔로잉 계정이 없습니다.</p>
+                                </div>
                                 <div class="col-md-2" th:each="follow: ${following}">
                                     <a class="card shadow-sm" th:href="@{|/profile/@${follow.nickname}|}" >
                                         <svg th:if="${#strings.isEmpty(follow.profileImage)}" class="img-fluid mx-auto rounded img-thumbnail"
@@ -133,7 +139,19 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="v-pills-posting" role="tabpanel" aria-labelledby="v-pills-profile-tab">
-                        posting
+                        <div class="row-sm-12">
+                            <div class="row">
+                                <div th:if="${#lists.isEmpty(postList)}">
+                                    <p>포스팅이 없습니다.</p>
+                                </div>
+                                <div class="col-md-3" th:each="post: ${postList}">
+                                    <a class="card shadow-sm" th:href="@{|/post/${post.id}|}" >
+                                        <img th:if="${!#strings.isEmpty(post.postImage)}" class="img-fluid mx-auto rounded img-thumbnail"
+                                             th:src="${post.postImage}" width="100%"/>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
