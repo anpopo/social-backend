@@ -52,9 +52,9 @@
                         </form>
                     </div>
                 </div>
-                <div class="mt-3 lead">
+                <div class="mt-3 lead text-truncate">
                     <pre th:if="${!#strings.isEmpty(findAccount.bio)}" style="font-size: 1rem;"
-                         th:utext="${findAccount.bio}">bio</pre>
+                         th:text="${findAccount.bio}">bio</pre>
                     <p class="lead" th:if="${#strings.isEmpty(findAccount.bio) && isOwner}">
                         <a href="#" th:href="@{/settings/profile}">한 줄 소개를 추가하세요.</a>
                     </p>
@@ -86,7 +86,7 @@
                             <span th:text="${account.email}" class="col-9"></span>
                         </p>
                         <p th:if="${isOwner || account.emailVerified}">
-                            <span style="font-size: 20px;">
+                            <span style="font-size: 1.125rem;">
                                 <i class="fa fa-calendar-o col-1"></i>
                             </span>
                             <span th:if="${isOwner && !account.emailVerified}" class="col-9">

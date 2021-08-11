@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head-fragment"></head>
+<body>
+    <nav th:replace="fragments.html :: nav-fragment"></nav>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-12" th:each="post: ${postList}">
+                        <div class="card my-3 shadow-md">
+                            <div class="card-header d-flex align-items-center">
+                                <svg th:if="${#strings.isEmpty(post?.account?.profileImage)}" class="rounded border bg-light"
+                                     th:data-jdenticon-value="${post.account.nickname}" width="30" height="30"></svg>
+                                <img th:if="${!#strings.isEmpty(post?.account?.profileImage)}" class="rounded border"
+                                     th:src="${post.account.profileImage}" width="30" height="30" />
+                                <a th:href="@{|/profile/@${post.account.nickname}|}" role="dialog" >
+                                    <h4 class="mx-3" th:text="|@${post.account.nickname}|"></h4>
+                                </a>
+                                <small class="date-weekday-time text-muted ml-auto" th:text="${post.modifiedAt}">3 days ago</small>
+                            </div>
+
+                            <div class="card-body">
+                                <div th:id="|postImageIndicator${post.id}|" class="carousel slide" data-ride="carousel" data-interval="0">
+                                    <ol class="carousel-indicators" th:if="${!#strings.isEmpty(post?.postImage2)}">
+                                        <li th:if="${!#strings.isEmpty(post?.postImage1)}" th:data-target="|#postImageIndicator${post.id}|" data-target="#postImageIndicator" data-slide-to="0" class="active"></li>
+                                        <li th:if="${!#strings.isEmpty(post?.postImage2)}" th:data-target="|#postImageIndicator${post.id}|" data-target="#postImageIndicator" data-slide-to="1"></li>
+                                        <li th:if="${!#strings.isEmpty(post?.postImage3)}" th:data-target="|#postImageIndicator${post.id}|" data-target="#postImageIndicator" data-slide-to="2"></li>
+                                    </ol>
+                                    <div class="carousel-inner" th:if="${!#strings.isEmpty(post?.postImage1)}">
+                                        <div class="carousel-item active" >
+                                            <img class="rounded border w-100 h-100" th:src="${post.postImage1}" width="200" height="200" alt="" src=""/>
+                                        </div>
+                                        <div class="carousel-item" th:if="${!#strings.isEmpty(post?.postImage2)}">
+                                            <img class="rounded border w-100 h-100" th:src="${post.postImage2}" width="200" height="200"  alt="" src=""/>
+                                        </div>
+                                        <div class="carousel-item" th:if="${!#strings.isEmpty(post?.postImage3)}">
+                                            <img class="rounded border w-100 h-100" th:src="${post.postImage3}" width="200" height="200"  alt="" src=""/>
+                                        </div>
+                                    </div>
+                                    <a th:if="${!#strings.isEmpty(post?.postImage2)}" class="carousel-control-prev" th:href="|#postImageIndicator${post.id}|" href="#postImageIndicator" role="button" data-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a th:if="${!#strings.isEmpty(post?.postImage2)}" class="carousel-control-next" th:href="|#postImageIndicator${post.id}|" role="button" data-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </div>
+                                <hr />
+                                <div>
+                                    <div th:if="${!#strings.isEmpty(post?.context) && #strings.length(post.context) > 100}" class="text-truncate">
+                                        <pre class="text-justify" th:text="${#strings.abbreviate(post.context, 100)}" style="font-size: 1.125rem;"></pre>
+                                        <span>⬇ 본문을 끝까지 보시려면 <a th:href="@{|/post/${post.id}|}">더보기</a>를 눌러주세요</span>
+                                    </div>
+                                    <div th:if="${!#strings.isEmpty(post?.context) && #strings.length(post.context) < 100}" class="text-truncate">
+                                        <pre class="text-justify" th:text="${post.context}" style="font-size: 1.125rem;"></pre>
+                                    </div>
+                                </div>
+                                <br>
+                                <div>
+                                    <h5>
+                                        <span th:each="interest: ${post.interest}" class="font-weight-light text-monospace badge badge-primary mr-3">
+                                            <a th:href="@{'#'}" class="text-decoration-none text-white">
+                                                <i class="fa fa-thumbs-up"></i> <span th:text="${interest.interest}">interest</span>
+                                            </a>
+                                        </span>
+                                        <span th:each="tag: ${post.tags}" class="font-weight-light text-monospace badge badge-pill badge-info mr-3">
+                                            <a th:href="@{'#'}" class="text-decoration-none text-white">
+                                                <i class="fa fa-tag"></i> <span th:text="${tag.title}">Tag</span>
+                                            </a>
+                                        </span>
+                                    </h5>
+                                </div>
+                            </div>
+
+                            <div class="card-footer d-flex align-items-center" >
+                                <a th:href="@{|/post/${post.id}|}" class="mr-auto">
+                                    <span th:text="더보기"></span>
+                                </a>
+
+                                <i class="fa fa-heart"></i>
+                                <i class="fa fa-heart-o"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
+
+
+    <script th:replace="fragments.html :: script-fragment"></script>
+    <script src="/node_modules/moment/min/moment-with-locales.min.js"></script>
+    <script type="application/javascript">
+        $(function () {
+            moment.locale('ko');
+            $(".date-time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LLL');
+            });
+            $(".date").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LL');
+            });
+            $(".weekday").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('dddd');
+            });
+            $(".time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LT');
+            });
+            $(".calendar").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").calendar();
+            });
+            $(".fromNow").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").fromNow();
+            });
+            $(".date-weekday-time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LLLL');
+            });
+        })
+    </script>
+</body>
+</html>

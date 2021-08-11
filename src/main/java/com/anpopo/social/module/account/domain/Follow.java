@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+
+@NamedEntityGraph(
+        name = "Follow.withFollowedAccount",
+        attributeNodes = {@NamedAttributeNode("followed")}
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
@@ -41,7 +46,4 @@ public class Follow {
         this.acceptedAt = LocalDateTime.now();
     }
 
-    public void rejectFollowRequest() {
-
-    }
 }

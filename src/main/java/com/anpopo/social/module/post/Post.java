@@ -33,6 +33,10 @@ public class Post {
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Tag> tags;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "interest_id")
+    private Interest interest;
+
     @Lob
     private String postImage1;
 
@@ -42,9 +46,6 @@ public class Post {
     @Lob
     private String postImage3;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "interest_id")
-    private Interest interest;
 
     public Post(String context, Account account, Interest interest, String... postImages) {
         this.context = context;
