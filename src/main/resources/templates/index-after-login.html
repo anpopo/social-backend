@@ -20,6 +20,9 @@
                                     <h4 class="mx-3" th:text="|@${post.account.nickname}|"></h4>
                                 </a>
                                 <small class="date-weekday-time text-muted ml-auto" th:text="${post.modifiedAt}">3 days ago</small>
+                                <a th:if="${post.isWriter(#authentication.principal)}" class="btn btn-outline-danger mx-3" th:href="${'#'}">
+                                    삭제
+                                </a>
                             </div>
 
                             <div class="card-body">
@@ -78,11 +81,23 @@
 
                             <div class="card-footer d-flex align-items-center" >
                                 <a th:href="@{|/post/${post.id}|}" class="mr-auto">
-                                    <span th:text="더보기"></span>
+                                    <span th:text="더보기">더보기</span>
                                 </a>
 
-                                <i class="fa fa-heart"></i>
-                                <i class="fa fa-heart-o"></i>
+                                <div class="mx-2">
+                                    <div th:if="${post.isLike(#authentication.principal)}" th:id="|dislikeDiv${post.id}|">
+                                        <span class="like-count" th:id="|dislikeCount${post.id}|" th:text="${post.likeCount}"></span>
+                                        <a href="javascript:void(0);" style="cursor:pointer" class="post-like" th:id="|dislike${post.id}|">
+                                             <i class="fa fa-heart"></i>
+                                        </a>
+                                    </div>
+                                    <div th:if="${!post.isLike(#authentication.principal)}" th:id="|likeDiv${post.id}|">
+                                        <span class="like-count" th:id="|likeCount${post.id}|" th:text="${post.likeCount}"></span>
+                                        <a href="javascript:void(0);" style="cursor:pointer" class="post-dislike" th:id="|like${post.id}|">
+                                            <i class="fa fa-heart-o"></i>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -95,6 +110,7 @@
 
     <script th:replace="fragments.html :: script-fragment"></script>
     <script src="/node_modules/moment/min/moment-with-locales.min.js"></script>
+    <script th:replace="fragments.html :: ajax-csrf-header"></script>
     <script type="application/javascript">
         $(function () {
             moment.locale('ko');
@@ -120,6 +136,61 @@
                 return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LLLL');
             });
         })
+    </script>
+    <script type="application/javascript">
+    $(document).ready(function() {
+        const like = 'like';
+        const dislike = 'dislike';
+
+        $('.post-like').click(handlePostLikeDislike)
+
+        $('.post-dislike').click(handlePostLikeDislike)
+
+        function handlePostLikeDislike (e) {
+            const id = e.currentTarget.id;
+
+            if(id.startsWith('like')) {
+                const postId = id.replace(like, '');
+                likeDislikeRequest(like, postId);
+            } else if(id.startsWith('dislike')){
+                const postId = id.replace(dislike, '');
+                likeDislikeRequest(dislike, postId);
+            }
+        }
+
+        function likeDislikeRequest(url, postId) {
+            $.ajax({
+                dataType: "json",
+                autocomplete: {
+                    enabled: true,
+                    rightKey: true,
+                },
+                contentType: "application/json; charset=utf-8",
+                method: "POST",
+                url: "/post/" + url,
+                data: JSON.stringify({'postId': postId}),
+                success: function(data) {
+                    if(url === like){
+                        $('#likeDiv'+postId).hide();
+                        console.log('#likeDiv'+postId,' is hide~~~');
+                        $('#dislikeCount'+postId).html(data);
+                        $('#dislikeDiv'+postId).show();
+                        console.log('complete');
+                    } else {
+                        $('#dislikeDiv'+postId).hide();
+                        console.log('#dislikeDiv'+postId,' is hide~~~');
+                        $('#likeCount'+postId).html(data);
+                        $('#likeDiv'+postId).show();
+                        console.log('complete');
+                    }
+                },
+                fail: function () {
+
+                }
+            });
+         };
+
+    });
     </script>
 </body>
 </html>

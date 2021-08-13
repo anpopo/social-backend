@@ -70,4 +70,15 @@ public class PostService {
     public void deletePost(Long id) {
         postRepository.deleteById(id);
     }
+
+    public Integer likePost(Account account, Post post) {
+        post.addLike(account);
+
+        return post.getLikeCount();
+    }
+    public Integer dislikePost(Account account, Post post) {
+
+        post.minusLike(account);
+        return post.getLikeCount();
+    }
 }

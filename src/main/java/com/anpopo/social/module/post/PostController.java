@@ -149,4 +149,37 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
+
+    @PostMapping("/like")
+    public ResponseEntity postLike(@CurrentUser Account account, @RequestBody LikeForm likeForm) {
+
+        Long postId = likeForm.getPostId();
+
+        Optional<Post> post = postRepository.findPostWithLikeAccountById(postId);
+
+        if (post.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Integer likeCount = postService.likePost(account, post.get());
+
+        return ResponseEntity.ok().body(likeCount);
+    }
+
+    @PostMapping("/dislike")
+    public ResponseEntity postDislike(@CurrentUser Account account, @RequestBody LikeForm likeForm) {
+
+        Long postId = likeForm.getPostId();
+
+        Optional<Post> post = postRepository.findPostWithLikeAccountById(postId);
+
+        if (post.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Integer dislikeCount = postService.dislikePost(account, post.get());
+
+        return ResponseEntity.ok().body(dislikeCount);
+    }
+
 }

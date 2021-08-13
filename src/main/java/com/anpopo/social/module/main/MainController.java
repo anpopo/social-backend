@@ -3,6 +3,7 @@ package com.anpopo.social.module.main;
 import com.anpopo.social.module.account.domain.Account;
 import com.anpopo.social.module.account.CurrentUser;
 import com.anpopo.social.module.account.domain.Follow;
+import com.anpopo.social.module.account.repository.AccountRepository;
 import com.anpopo.social.module.account.repository.FollowRepository;
 import com.anpopo.social.module.notification.NotificationRepository;
 import com.anpopo.social.module.post.Post;
@@ -23,6 +24,7 @@ public class MainController {
 
     private final PostRepository postRepository;
     private final FollowRepository followRepository;
+    private final AccountRepository accountRepository;
 
     @GetMapping("/")
     public String home(@CurrentUser Account account, Model model) {
@@ -35,14 +37,13 @@ public class MainController {
             List<Account> followingAccountList = following.stream().map(Follow::getFollowed).collect(Collectors.toList());
             followingAccountList.add(account);
 
-            List<Post> followingPostList = postRepository.findFirst20PostWithTagsWithInterestWithAccountByAccountInOrderByPostedAtDesc(followingAccountList);
+            List<Post> followingPostList = postRepository.findFirst20PostWithTagsWithInterestWithAccountWithLikeAccountByAccountInOrderByPostedAtDesc(followingAccountList);
 
             model.addAttribute("postList", followingPostList);
 
             // TODO 추천 친구 보여주기
 
             return "index-after-login";
-
         }
         return "index";
     }

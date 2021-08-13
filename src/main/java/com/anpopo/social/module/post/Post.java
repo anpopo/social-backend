@@ -1,5 +1,6 @@
 package com.anpopo.social.module.post;
 
+import com.anpopo.social.module.account.UserAccount;
 import com.anpopo.social.module.account.domain.Account;
 import com.anpopo.social.module.interest.Interest;
 import com.anpopo.social.module.tag.Tag;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -46,6 +48,14 @@ public class Post {
     @Lob
     private String postImage3;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    private Set<Account> likeAccount = new HashSet<>();
+
+    private Integer likeCount = 0;
+
+    public Integer getLikeCount() {
+        return this.likeAccount.size();
+    }
 
     public Post(String context, Account account, Interest interest, String... postImages) {
         this.context = context;
@@ -80,9 +90,35 @@ public class Post {
 
     }
 
+    public void addLike(Account account) {
+        if (!likeAccount.contains(account)) {
+            this.likeAccount.add(account);
+            this.likeCount += 1;
+        }
+    }
+
+    public void minusLike(Account account) {
+        if (this.likeAccount.contains(account)) {
+            this.likeAccount.remove(account);
+
+            if (this.likeCount - 1 <= 0) {
+                this.likeCount = 0;
+            }  else {
+                this.likeCount -= 1;
+            }
+        }
+    }
+
+    public boolean isLike(UserAccount userAccount) {
+        Account account = userAccount.getAccount();
+        return this.likeAccount.contains(account);
+    }
+
     // TODO 댓글 기능 나중에 기릿
 
-
+    public boolean isWriter(UserAccount userAccount) {
+        return this.account.equals(userAccount.getAccount());
+    }
 
 
 }

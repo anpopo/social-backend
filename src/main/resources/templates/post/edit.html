@@ -248,13 +248,7 @@
     <script src="/node_modules/jquery-cropper/dist/jquery-cropper.min.js"></script>
     <script type="application/javascript">
         $(function() {
-
-            const deleteButton = document.querySelector(".delete-post");
-            const deleteButtons = document.getElementsByClassName("delete-post")
-
-            for (let i = 0; i < deleteButtons.length; i++) {
-                deleteButtons[i].addEventListener('click', handleDeletePostImage);
-            }
+            $('.delete-post').click(handleDeletePostImage);
 
             cropper = '';
             let $postImage1 = $("#postImage1");
@@ -456,7 +450,6 @@
                 event.preventDefault();
 
                 const div = event.target.parentElement.parentElement;
-
                 const id = div.parentElement.id;
 
                 if(id === 'post-image-card-div-1'){
