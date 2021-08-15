@@ -12,6 +12,8 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Component
@@ -25,6 +27,12 @@ public class NotificationInterceptor implements HandlerInterceptor {
 
         if (modelAndView != null && !isRedirectView(modelAndView) && authentication != null && authentication.getPrincipal() instanceof UserAccount) {
             Account account = ((UserAccount) authentication.getPrincipal()).getAccount();
+            List<Notification> notifications = notificationRepository.findByCreatedAtBefore(LocalDateTime.now().minusDays(30));
+
+            if (!notifications.isEmpty()) {
+                notificationRepository.deleteAll(notifications);
+            }
+
             long count = notificationRepository.countByAccountAndChecked(account, false);
 
             modelAndView.addObject("hasNotification", count > 0);

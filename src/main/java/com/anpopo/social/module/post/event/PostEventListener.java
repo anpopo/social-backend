@@ -46,6 +46,7 @@ public class PostEventListener {
         if (followList != null) {
             followList.stream().sequential()
                     .filter(Follow::isAccepted)
+                    .filter(follow -> follow.getFollow().isFollowingAccountPostingByWeb())
                     .forEach(follow -> {
                         Notification notification = createNotification("팔로우 포스팅 알림", "/post/" + followingInterestPostEvent.getId(),
                                 "'" + account.getNickname() + "' 님이 포스팅을 하셨습니다.",
@@ -57,16 +58,22 @@ public class PostEventListener {
 
         List<Account> accounts = accountRepository.findAccountByInterest(interest);
 
-        if (accounts != null) {
-            accounts.forEach(findAccount -> {
-                if(findAccount.getId() != account.getId()) {
-                    Notification notification = createNotification("관심주제 포스팅 알림", "/post/" + followingInterestPostEvent.getId(),
-                            "'" + account.getNickname() + "' 님이 '" + interest.getInterest() + "' 주제로 포스팅 했습니다.",
-                            findAccount, NotificationType.INTEREST_POST);
+        for (Account account1 : accounts) {
+            System.out.println("account1 = " + account1);
+        }
 
-                    saveList.add(notification);
-                }
-            });
+        if (accounts != null) {
+            accounts.stream().sequential()
+                    .filter(Account::isInterestSubjectPostingByWeb)
+                    .forEach(findAccount -> {
+                        if(findAccount.getId() != account.getId()) {
+                            Notification notification = createNotification("관심주제 포스팅 알림", "/post/" + followingInterestPostEvent.getId(),
+                                    "'" + account.getNickname() + "' 님이 '" + interest.getInterest() + "' 주제로 포스팅 했습니다.",
+                                    findAccount, NotificationType.INTEREST_POST);
+
+                            saveList.add(notification);
+                        }
+                    });
         }
 
         notificationRepository.saveAll(saveList);

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head-fragment"></head>
+<body>
+    <nav th:replace="fragments.html :: nav-fragment"></nav>
+    <div class="alert alert-warning" role="alert" th:if="${account != null && !account?.emailVerified}">
+        The Social 가입을 완료하려면 <a href="#" th:href="@{/check-email}" class="alert-link">계정 인증 이메일을 확인</a> 하세요.
+    </div>
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+
+        </div>
+    </div>
+
+
+    <script th:replace="fragments.html :: script-fragment"></script>
+    <script src="/node_modules/moment/min/moment-with-locales.min.js"></script>
+    <script type="application/javascript">
+        $(function () {
+            moment.locale('ko');
+            $(".date-time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LLL');
+            });
+            $(".date").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LL');
+            });
+            $(".weekday").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('dddd');
+            });
+            $(".time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LT');
+            });
+            $(".calendar").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").calendar();
+            });
+            $(".fromNow").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").fromNow();
+            });
+            $(".date-weekday-time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LLLL');
+            });
+        })
+    </script>
+    <script th:replace="fragments.html :: ajax-csrf-header"></script>
+    <script type="application/javascript">
+    $(document).ready(function() {
+
+        const likeDivs = $('.like-div');
+        likeDivs.hide();
+
+        likeDivs.each( function(index, value, count) {
+          if($(this).attr('likecheck') === 'false') {
+                $(this).show();
+                $(this).children().first().hide();
+                $(this).children().last().show();
+          } else if($(this).attr('likecheck') === 'true') {
+                $(this).show();
+                $(this).children().last().hide();
+                $(this).children().first().show();
+          }
+        });
+
+        const like = 'like';
+        const dislike = 'dislike';
+
+        $('.post-like').click(handlePostLikeDislike)
+
+        $('.post-dislike').click(handlePostLikeDislike)
+
+        function handlePostLikeDislike (e) {
+            const id = e.currentTarget.id;
+
+            if(id.startsWith('like')) {
+                const postId = id.replace(like, '');
+                likeDislikeRequest(like, postId);
+            } else if(id.startsWith('dislike')){
+                const postId = id.replace(dislike, '');
+                likeDislikeRequest(dislike, postId);
+            }
+        }
+
+        function likeDislikeRequest(url, postId) {
+            $.ajax({
+                dataType: "json",
+                autocomplete: {
+                    enabled: true,
+                    rightKey: true,
+                },
+                contentType: "application/json; charset=utf-8",
+                method: "POST",
+                url: "/post/" + url,
+                data: JSON.stringify({'postId': postId}),
+                success: function(data) {
+                    if(url === like){
+                        $('#likeDiv'+postId).hide();
+                        $('#dislikeCount'+postId).html(data);
+                        $('#dislikeDiv'+postId).show();
+                    } else {
+                        $('#dislikeDiv'+postId).hide();
+                        $('#likeCount'+postId).html(data);
+                        $('#likeDiv'+postId).show();
+                    }
+                },
+                fail: function () {
+                    console.log('fail');
+                }
+            });
+         };
+
+    });
+    </script>
+</body>
+</html>

@@ -29,4 +29,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @EntityGraph(attributePaths = {"account", "tags", "interest", "likeAccount"})
     List<Post> findFirst20PostWithTagsWithInterestWithAccountWithLikeAccountByAccountInOrderByPostedAtDesc(List<Account> followingAccountList);
+
+    boolean existsByAccountAndId(Account account, Long id);
 }

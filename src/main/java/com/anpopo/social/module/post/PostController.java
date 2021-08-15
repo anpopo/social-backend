@@ -65,6 +65,19 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
+    public String viewPostDetail(@CurrentUser Account account, @PathVariable Long id, Model model) {
+
+        Optional<Post> post = postRepository.findById(id);
+
+        if (post.isEmpty()) {
+            throw new IllegalArgumentException("해당 포스트가 존재하지 않습니다.");
+        }
+
+        model.addAttribute(account);
+        return "post/detail";
+    }
+
+    @GetMapping("/{id}/edit")
     public String updatePostView(@CurrentUser Account account, @PathVariable Long id, Model model) throws JsonProcessingException {
         model.addAttribute(account);
 
@@ -99,7 +112,7 @@ public class PostController {
         return "post/edit";
     }
 
-    @PostMapping("/{id}")
+    @PostMapping("/{id}/edit")
     public String updatePost (@CurrentUser Account account, @PathVariable Long id, @Valid PostForm postForm, Errors errors, Model model) throws JsonProcessingException {
         if (errors.hasErrors()) {
             model.addAttribute(account);
@@ -122,7 +135,9 @@ public class PostController {
 
     @PostMapping("/{id}/delete")
     public String deletePost(@CurrentUser Account account, @PathVariable Long id) {
-        postService.deletePost(id);
+        if(postRepository.existsByAccountAndId(account, id)) {
+            postService.deletePost(id);
+        }
         return "redirect:/";
     }
 

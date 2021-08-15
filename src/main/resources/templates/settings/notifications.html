@@ -22,7 +22,7 @@
                 <div class="row mt-3">
                     <form class="col-12" action="#" th:action="@{/settings/notifications}" th:object="${notificationForm}" method="post" novalidate>
                         <div class="alert alert-light" role="alert">
-                            <strong><a href="#" th:href="@{/settings/follower}">Following 한 계정</a>이 포스팅을 했을 경우</strong> 알림을 설정하세요.
+                            <strong><a href="#" th:href="@{/settings/following}">Following 한 계정</a>이 포스팅을 했을 경우</strong> 알림을 설정하세요.
                         </div>
                         <div class="form-group ">
                             <div class="custom-control custom-switch custom-control-inline">
@@ -31,7 +31,7 @@
                             </div>
                         </div>
                         <div class="alert alert-light" role="alert">
-                            <strong><a href="#" th:href="@{/settings/user}">관심 주제로 등록 된</a> 포스팅이 등록된 경우</strong> 알림을 설정하세요.
+                            <strong><a href="#" th:href="@{/settings/interest}">관심 주제로 등록 된</a> 포스팅이 등록된 경우</strong> 알림을 설정하세요.
                         </div>
                         <div class="form-group">
                             <div class="custom-control custom-switch custom-control-inline">

@@ -3,7 +3,9 @@
 <head th:replace="fragments.html :: head-fragment"></head>
 <body>
     <nav th:replace="fragments.html :: nav-fragment"></nav>
-
+    <div class="alert alert-warning" role="alert" th:if="${account != null && !account?.emailVerified}">
+        The Social 가입을 완료하려면 <a href="#" th:href="@{/check-email}" class="alert-link">계정 인증 이메일을 확인</a> 하세요.
+    </div>
     <div class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-md-3"></div>
@@ -20,9 +22,11 @@
                                     <h4 class="mx-3" th:text="|@${post.account.nickname}|"></h4>
                                 </a>
                                 <small class="date-weekday-time text-muted ml-auto" th:text="${post.modifiedAt}">3 days ago</small>
-                                <a th:if="${post.isWriter(#authentication.principal)}" class="btn btn-outline-danger mx-3" th:href="${'#'}">
-                                    삭제
-                                </a>
+                                <form th:action="@{|/post/${post.id}/delete|}" method="post" class="mx-3" th:if="${post.isWriter(#authentication.principal)}">
+                                    <button class="btn btn-outline-danger" type="submit">
+                                        삭제
+                                    </button>
+                                </form>
                             </div>
 
                             <div class="card-body">
@@ -84,14 +88,14 @@
                                     <span th:text="더보기">더보기</span>
                                 </a>
 
-                                <div class="mx-2">
-                                    <div th:if="${post.isLike(#authentication.principal)}" th:id="|dislikeDiv${post.id}|">
+                                <div class="mx-2 like-div" th:likecheck="${post.isLike(#authentication.principal)}">
+                                    <div th:id="|dislikeDiv${post.id}|">
                                         <span class="like-count" th:id="|dislikeCount${post.id}|" th:text="${post.likeCount}"></span>
                                         <a href="javascript:void(0);" style="cursor:pointer" class="post-like" th:id="|dislike${post.id}|">
                                              <i class="fa fa-heart"></i>
                                         </a>
                                     </div>
-                                    <div th:if="${!post.isLike(#authentication.principal)}" th:id="|likeDiv${post.id}|">
+                                    <div th:id="|likeDiv${post.id}|">
                                         <span class="like-count" th:id="|likeCount${post.id}|" th:text="${post.likeCount}"></span>
                                         <a href="javascript:void(0);" style="cursor:pointer" class="post-dislike" th:id="|like${post.id}|">
                                             <i class="fa fa-heart-o"></i>
@@ -110,7 +114,6 @@
 
     <script th:replace="fragments.html :: script-fragment"></script>
     <script src="/node_modules/moment/min/moment-with-locales.min.js"></script>
-    <script th:replace="fragments.html :: ajax-csrf-header"></script>
     <script type="application/javascript">
         $(function () {
             moment.locale('ko');
@@ -137,8 +140,25 @@
             });
         })
     </script>
+    <script th:replace="fragments.html :: ajax-csrf-header"></script>
     <script type="application/javascript">
     $(document).ready(function() {
+
+        const likeDivs = $('.like-div');
+        likeDivs.hide();
+
+        likeDivs.each( function(index, value, count) {
+          if($(this).attr('likecheck') === 'false') {
+                $(this).show();
+                $(this).children().first().hide();
+                $(this).children().last().show();
+          } else if($(this).attr('likecheck') === 'true') {
+                $(this).show();
+                $(this).children().last().hide();
+                $(this).children().first().show();
+          }
+        });
+
         const like = 'like';
         const dislike = 'dislike';
 
@@ -172,20 +192,16 @@
                 success: function(data) {
                     if(url === like){
                         $('#likeDiv'+postId).hide();
-                        console.log('#likeDiv'+postId,' is hide~~~');
                         $('#dislikeCount'+postId).html(data);
                         $('#dislikeDiv'+postId).show();
-                        console.log('complete');
                     } else {
                         $('#dislikeDiv'+postId).hide();
-                        console.log('#dislikeDiv'+postId,' is hide~~~');
                         $('#likeCount'+postId).html(data);
                         $('#likeDiv'+postId).show();
-                        console.log('complete');
                     }
                 },
                 fail: function () {
-
+                    console.log('fail');
                 }
             });
          };
