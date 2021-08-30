@@ -67,13 +67,15 @@ public class PostController {
     @GetMapping("/{id}")
     public String viewPostDetail(@CurrentUser Account account, @PathVariable Long id, Model model) {
 
-        Optional<Post> post = postRepository.findById(id);
+        Post post = postRepository.findPostWithTagsWithInterestWithAccountWithLikeAccountById(id);
 
-        if (post.isEmpty()) {
+        if (post == null) {
             throw new IllegalArgumentException("해당 포스트가 존재하지 않습니다.");
         }
 
         model.addAttribute(account);
+        model.addAttribute(post);
+
         return "post/detail";
     }
 

@@ -92,8 +92,8 @@
                                 <div class="col-md-3" id="post-image-card-div-3">
                                 </div>
                             </div>
-                            <small class="form-text text-danger" th:if="${#fields.hasErrors('postImage1')}" th:errors="*{postImage1}">
-                                1개의 이미지를 선택해 주세요.
+                            <small class="form-text alert alert-danger" th:if="${#fields.hasErrors('postImage1')}" th:errors="*{postImage1}">
+                                최소 1개의 이미지를 선택해 주세요.
                             </small>
                             <div class="form-group">
                                 <button class="btn btn-primary btn-block mt-5" type="submit" aria-describedby="submitHelp">

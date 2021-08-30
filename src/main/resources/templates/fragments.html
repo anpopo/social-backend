@@ -10,8 +10,18 @@
   <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css" />
   <link rel="stylesheet" href="/node_modules/cropper/dist/cropper.min.css">
   <link rel="stylesheet" href="/node_modules/@yaireo/tagify/dist/tagify.css"/>
+  <link rel="stylesheet" href="/node_modules/bootstrap-icons/font/bootstrap-icons.css"/>
 
   <style>
+
+        * {
+          box-sizing: border-box;
+        }
+
+        body {
+          padding-bottom: 5%;
+        }
+
         textarea {
             resize: none;
             padding-top: .8em;
@@ -102,7 +112,7 @@
             <span sec:authentication="name">Username</span>
           </h6>
           <a class="dropdown-item" th:href="@{'/profile/@' + ${#authentication.name}}">프로필</a>
-          <a class="dropdown-item" > 내 포스팅 확인</a>
+          <a class="dropdown-item" th:href="@{'/profile/@' + ${#authentication.name}} + '/#v-pills-posting'"> 내 포스팅 확인</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="#" th:href="@{'/settings/profile'}">설정</a>
           <form class="form-inline my-2 my-lg-0" action="#" th:action="@{/logout}" method="post">

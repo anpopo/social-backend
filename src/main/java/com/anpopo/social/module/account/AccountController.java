@@ -202,7 +202,7 @@ public class AccountController {
                             return followForm;
                         }).collect(Collectors.toList()));
 
-        List<Post> postList = postRepository.findAllByAccountOrderByModifiedAt(findAccount);
+        List<Post> postList = postRepository.findAllByAccountOrderByModifiedAtDesc(findAccount);
 
         model.addAttribute(
                 "postList",

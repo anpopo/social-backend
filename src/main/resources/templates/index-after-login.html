@@ -22,15 +22,10 @@
                                     <h4 class="mx-3" th:text="|@${post.account.nickname}|"></h4>
                                 </a>
                                 <small class="date-weekday-time text-muted ml-auto" th:text="${post.modifiedAt}">3 days ago</small>
-                                <form th:action="@{|/post/${post.id}/delete|}" method="post" class="mx-3" th:if="${post.isWriter(#authentication.principal)}">
-                                    <button class="btn btn-outline-danger" type="submit">
-                                        삭제
-                                    </button>
-                                </form>
                             </div>
 
                             <div class="card-body">
-                                <div th:id="|postImageIndicator${post.id}|" class="carousel slide" data-ride="carousel" data-interval="0">
+                                <div th:id="|postImageIndicator${post.id}|" class="carousel slide text-center" data-ride="carousel" data-interval="0">
                                     <ol class="carousel-indicators" th:if="${!#strings.isEmpty(post?.postImage2)}">
                                         <li th:if="${!#strings.isEmpty(post?.postImage1)}" th:data-target="|#postImageIndicator${post.id}|" data-target="#postImageIndicator" data-slide-to="0" class="active"></li>
                                         <li th:if="${!#strings.isEmpty(post?.postImage2)}" th:data-target="|#postImageIndicator${post.id}|" data-target="#postImageIndicator" data-slide-to="1"></li>
@@ -38,31 +33,35 @@
                                     </ol>
                                     <div class="carousel-inner" th:if="${!#strings.isEmpty(post?.postImage1)}">
                                         <div class="carousel-item active" >
-                                            <img class="rounded border w-100 h-100" th:src="${post.postImage1}" width="200" height="200" alt="" src=""/>
+                                            <img class="rounded border" th:src="${post.postImage1}" width="80%" height="80%" alt="" src=""/>
                                         </div>
                                         <div class="carousel-item" th:if="${!#strings.isEmpty(post?.postImage2)}">
-                                            <img class="rounded border w-100 h-100" th:src="${post.postImage2}" width="200" height="200"  alt="" src=""/>
+                                            <img class="rounded border" th:src="${post.postImage2}" width="80%" height="80%"  alt="" src=""/>
                                         </div>
                                         <div class="carousel-item" th:if="${!#strings.isEmpty(post?.postImage3)}">
-                                            <img class="rounded border w-100 h-100" th:src="${post.postImage3}" width="200" height="200"  alt="" src=""/>
+                                            <img class="rounded border" th:src="${post.postImage3}" width="80%" height="80%"  alt="" src=""/>
                                         </div>
                                     </div>
-                                    <a th:if="${!#strings.isEmpty(post?.postImage2)}" class="carousel-control-prev" th:href="|#postImageIndicator${post.id}|" href="#postImageIndicator" role="button" data-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <a th:if="${!#strings.isEmpty(post?.postImage2)}" class="carousel-control-prev" style="color: black; width: 7%; font-weight: bold;" th:href="|#postImageIndicator${post.id}|" href="#postImageIndicator" role="button" data-slide="prev">
+                                        <span aria-hidden="true" style="font-size: 1.875rem;">
+                                            <i class="bi bi-chevron-double-left"></i>
+                                        </span>
                                         <span class="sr-only">Previous</span>
                                     </a>
-                                    <a th:if="${!#strings.isEmpty(post?.postImage2)}" class="carousel-control-next" th:href="|#postImageIndicator${post.id}|" role="button" data-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <a th:if="${!#strings.isEmpty(post?.postImage2)}" class="carousel-control-next" style="color: black; width: 7%; font-weight: bold;" th:href="|#postImageIndicator${post.id}|" role="button" data-slide="next">
+                                        <span aria-hidden="true" style="font-size: 1.875rem;">
+                                            <i class="bi bi-chevron-double-right"></i>
+                                        </span>
                                         <span class="sr-only">Next</span>
                                     </a>
                                 </div>
                                 <hr />
                                 <div>
-                                    <div th:if="${!#strings.isEmpty(post?.context) && #strings.length(post.context) > 100}" class="text-truncate">
+                                    <div th:if="${!#strings.isEmpty(post?.context) && #strings.length(post.context) > 100}" class="text-truncate px-2">
                                         <pre class="text-justify" th:text="${#strings.abbreviate(post.context, 100)}" style="font-size: 1.125rem;"></pre>
                                         <span>⬇ 본문을 끝까지 보시려면 <a th:href="@{|/post/${post.id}|}">더보기</a>를 눌러주세요</span>
                                     </div>
-                                    <div th:if="${!#strings.isEmpty(post?.context) && #strings.length(post.context) < 100}" class="text-truncate">
+                                    <div th:if="${!#strings.isEmpty(post?.context) && #strings.length(post.context) < 100}" class="text-truncate px-2">
                                         <pre class="text-justify" th:text="${post.context}" style="font-size: 1.125rem;"></pre>
                                     </div>
                                 </div>
@@ -84,21 +83,19 @@
                             </div>
 
                             <div class="card-footer d-flex align-items-center" >
-                                <a th:href="@{|/post/${post.id}|}" class="mr-auto">
+                                <a th:href="@{|/post/${post.id}|}" class="mr-auto btn btn-outline-primary">
                                     <span th:text="더보기">더보기</span>
                                 </a>
 
                                 <div class="mx-2 like-div" th:likecheck="${post.isLike(#authentication.principal)}">
                                     <div th:id="|dislikeDiv${post.id}|">
-                                        <span class="like-count" th:id="|dislikeCount${post.id}|" th:text="${post.likeCount}"></span>
-                                        <a href="javascript:void(0);" style="cursor:pointer" class="post-like" th:id="|dislike${post.id}|">
-                                             <i class="fa fa-heart"></i>
+                                        <a href="javascript:void(0);" style="cursor:pointer" class="post-like btn btn-outline-danger" th:id="|dislike${post.id}|">
+                                             <i class="fa fa-heart"></i> <span class="like-count" th:id="|dislikeCount${post.id}|" th:text="${post.likeCount}"></span>
                                         </a>
                                     </div>
                                     <div th:id="|likeDiv${post.id}|">
-                                        <span class="like-count" th:id="|likeCount${post.id}|" th:text="${post.likeCount}"></span>
-                                        <a href="javascript:void(0);" style="cursor:pointer" class="post-dislike" th:id="|like${post.id}|">
-                                            <i class="fa fa-heart-o"></i>
+                                        <a href="javascript:void(0);" style="cursor:pointer" class="post-dislike btn btn-outline-danger" th:id="|like${post.id}|">
+                                            <i class="fa fa-heart-o"></i> <span class="like-count" th:id="|likeCount${post.id}|" th:text="${post.likeCount}"></span>
                                         </a>
                                     </div>
                                 </div>

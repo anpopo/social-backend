@@ -2,6 +2,7 @@ package com.anpopo.social.module.post;
 
 import com.anpopo.social.module.account.UserAccount;
 import com.anpopo.social.module.account.domain.Account;
+import com.anpopo.social.module.comment.Comment;
 import com.anpopo.social.module.interest.Interest;
 import com.anpopo.social.module.tag.Tag;
 import lombok.EqualsAndHashCode;
@@ -10,7 +11,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -52,6 +55,9 @@ public class Post {
     private Set<Account> likeAccount = new HashSet<>();
 
     private Integer likeCount = 0;
+
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
 
     public Integer getLikeCount() {
         return this.likeAccount.size();

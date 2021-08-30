@@ -3,12 +3,102 @@
 <head th:replace="fragments.html :: head-fragment"></head>
 <body>
     <nav th:replace="fragments.html :: nav-fragment"></nav>
-    <div class="alert alert-warning" role="alert" th:if="${account != null && !account?.emailVerified}">
-        The Social 가입을 완료하려면 <a href="#" th:href="@{/check-email}" class="alert-link">계정 인증 이메일을 확인</a> 하세요.
-    </div>
     <div class="container mt-4">
         <div class="row justify-content-center">
-
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <svg th:if="${#strings.isEmpty(post?.account?.profileImage)}" class="rounded border bg-light"
+                             th:data-jdenticon-value="${post.account.nickname}" width="30" height="30"></svg>
+                        <img th:if="${!#strings.isEmpty(post?.account?.profileImage)}" class="rounded border"
+                             th:src="${post.account.profileImage}" width="30" height="30" />
+                        <a th:href="@{|/profile/@${post.account.nickname}|}" role="dialog" >
+                            <h4 class="mx-3" th:text="|@${post.account.nickname}|"></h4>
+                        </a>
+                        <small class="date-weekday-time text-muted ml-auto" th:text="${post.modifiedAt}">3 days ago</small>
+                        <form th:action="@{|/post/${post.id}/delete|}" method="post" class="mx-3" th:if="${post.isWriter(#authentication.principal)}">
+                            <button class="btn btn-outline-danger" type="submit">
+                                삭제
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card-body row">
+                        <div class="col-md-8 border-right">
+                            <div>
+                                <div th:id="|postImageIndicator${post.id}|" class="carousel slide" data-ride="carousel" data-interval="0">
+                                    <ol class="carousel-indicators" th:if="${!#strings.isEmpty(post?.postImage2)}">
+                                        <li th:if="${!#strings.isEmpty(post?.postImage1)}" th:data-target="|#postImageIndicator${post.id}|" data-target="#postImageIndicator" data-slide-to="0" class="active"></li>
+                                        <li th:if="${!#strings.isEmpty(post?.postImage2)}" th:data-target="|#postImageIndicator${post.id}|" data-target="#postImageIndicator" data-slide-to="1"></li>
+                                        <li th:if="${!#strings.isEmpty(post?.postImage3)}" th:data-target="|#postImageIndicator${post.id}|" data-target="#postImageIndicator" data-slide-to="2"></li>
+                                    </ol>
+                                    <div class="carousel-inner" th:if="${!#strings.isEmpty(post?.postImage1)}">
+                                        <div class="carousel-item active" >
+                                            <img class="rounded border mx-auto d-block" th:src="${post.postImage1}" width="80%" height="80%" alt="" src=""/>
+                                        </div>
+                                        <div class="carousel-item" th:if="${!#strings.isEmpty(post?.postImage2)}">
+                                            <img class="rounded border mx-auto d-block" th:src="${post.postImage2}" width="80%" height="80%" alt="" src=""/>
+                                        </div>
+                                        <div class="carousel-item" th:if="${!#strings.isEmpty(post?.postImage3)}">
+                                            <img class="rounded border mx-auto d-block" th:src="${post.postImage3}" width="80%" height="80%" alt="" src=""/>
+                                        </div>
+                                    </div>
+                                    <a th:if="${!#strings.isEmpty(post?.postImage2)}" class="carousel-control-prev" style="color: black; width: 7%; font-weight: bold;" th:href="|#postImageIndicator${post.id}|" href="#postImageIndicator" role="button" data-slide="prev">
+                                        <span aria-hidden="true" style="font-size: 1.875rem;">
+                                            <i class="bi bi-chevron-double-left"></i>
+                                        </span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a th:if="${!#strings.isEmpty(post?.postImage2)}" class="carousel-control-next" style="color: black; width: 7%; font-weight: bold;" th:href="|#postImageIndicator${post.id}|" role="button" data-slide="next">
+                                        <span aria-hidden="true" style="font-size: 1.875rem;">
+                                            <i class="bi bi-chevron-double-right"></i>
+                                        </span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="mt-3 bg-light">
+                                <div th:if="${!#strings.isEmpty(post?.context)}" class="px-3">
+                                    <pre class="text-justify" th:text="${post.context}" style="font-size: 1.125rem;"></pre>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="m-2 like-div" th:likecheck="${post.isLike(#authentication.principal)}">
+                                <div th:id="|dislikeDiv${post.id}|">
+                                    <a href="javascript:void(0);" style="cursor:pointer" class="post-like btn btn-danger btn-block" th:id="|dislike${post.id}|">
+                                        <i class="fa fa-heart"></i> <span class="like-count" th:id="|dislikeCount${post.id}|" th:text="${post.likeCount}"></span>
+                                    </a>
+                                </div>
+                                <div th:id="|likeDiv${post.id}|">
+                                    <a href="javascript:void(0);" style="cursor:pointer" class="post-dislike btn btn-danger btn-block" th:id="|like${post.id}|">
+                                        <i class="fa fa-heart-o"></i> <span class="like-count" th:id="|likeCount${post.id}|" th:text="${post.likeCount}"></span>
+                                    </a>
+                                </div>
+                            </div>
+                            <hr />
+                            <div id="commentDiv" class="py-3">
+                                <div>
+                                    <form class="needs-validation" th:action="@{/post/comment}" method="post" novalidate>
+                                        <div class="form-group">
+                                            <textarea id="comment" class="form-control" rows="4"
+                                                      placeholder="댓글을 입력해 주세요." aria-describedby="commentHelp" maxlength="140"></textarea>
+                                            <small id="commentHelp" class="form-text text-muted mt-2">
+                                                건전한 인터넷 댓글 문화를 만들어 주세요.
+                                            </small>
+                                        </div>
+                                        <div class="form-group">
+                                            <button class="btn btn-outline-success btn-block mt-2" type="submit" aria-describedby="submitHelp">
+                                                댓글 작성
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -108,6 +198,27 @@
          };
 
     });
+    </script>
+
+    <script type="application/javascript">
+        $(function () {
+            'use strict';
+
+            window.addEventListener('load', function () {
+                var forms = document.getElementsByClassName('needs-validation');
+
+                // Loop over them and prevent submission
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false)
+                })
+            }, false)
+        })
     </script>
 </body>
 </html>
