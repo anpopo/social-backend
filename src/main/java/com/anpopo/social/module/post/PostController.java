@@ -27,11 +27,12 @@ import java.util.stream.Collectors;
 @Controller
 public class PostController {
 
-    private final InterestRepository interestRepository;
     private final PostService postService;
-    private final PostRepository postRepository;
     private final TagService tagService;
+    private final InterestRepository interestRepository;
+    private final PostRepository postRepository;
     private final TagRepository tagRepository;
+    private final CommentRepository commentRepository;
     private final ObjectMapper objectMapper;
 
 
@@ -75,6 +76,8 @@ public class PostController {
 
         model.addAttribute(account);
         model.addAttribute(post);
+        model.addAttribute("commentList", commentRepository.findCommentWithAccountByPostOrderByModifiedAtDesc(post));
+        model.addAttribute(CommentForm.builder().postId(id).build());
 
         return "post/detail";
     }
@@ -115,7 +118,7 @@ public class PostController {
     }
 
     @PostMapping("/{id}/edit")
-    public String updatePost (@CurrentUser Account account, @PathVariable Long id, @Valid PostForm postForm, Errors errors, Model model) throws JsonProcessingException {
+    public String updatePost(@CurrentUser Account account, @PathVariable Long id, @Valid PostForm postForm, Errors errors, Model model) throws JsonProcessingException {
         if (errors.hasErrors()) {
             model.addAttribute(account);
             model.addAttribute(postForm);
@@ -137,7 +140,7 @@ public class PostController {
 
     @PostMapping("/{id}/delete")
     public String deletePost(@CurrentUser Account account, @PathVariable Long id) {
-        if(postRepository.existsByAccountAndId(account, id)) {
+        if (postRepository.existsByAccountAndId(account, id)) {
             postService.deletePost(id);
         }
         return "redirect:/";
@@ -199,4 +202,20 @@ public class PostController {
         return ResponseEntity.ok().body(dislikeCount);
     }
 
+    @PostMapping("/comment")
+    public String addComment(@CurrentUser Account account, @Valid CommentForm commentForm, Errors errors, Model model) {
+
+        if (errors.hasErrors()) {
+            Post post = postRepository.findPostWithTagsWithInterestWithAccountWithLikeAccountById(commentForm.getPostId());
+            model.addAttribute(account);
+            model.addAttribute(post);
+            model.addAttribute(commentForm);
+            model.addAttribute("commentList", commentRepository.findCommentWithAccountByPostOrderByModifiedAtDesc(post));
+            return "post/detail";
+        }
+
+        postService.addCommentToPost(account, commentForm);
+
+        return "redirect:/post/" + commentForm.getPostId();
+    }
 }

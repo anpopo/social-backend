@@ -23,6 +23,7 @@ public class Notification {
     private boolean checked;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
     private Account account;
 
     private LocalDateTime createdAt;

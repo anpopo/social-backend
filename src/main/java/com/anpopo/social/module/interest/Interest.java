@@ -20,8 +20,10 @@ public class Interest {
     @Column(nullable = false, unique = true)
     private String interest;
 
+    @Column(nullable = false, columnDefinition = "default 0")
     private Integer numberOfAccount = 0;
 
+    @Column(nullable = false, columnDefinition = "default 0")
     private Integer numberOfPost = 0;
 
     private boolean deleted = false;

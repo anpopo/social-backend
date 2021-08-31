@@ -83,18 +83,18 @@
                             </div>
 
                             <div class="card-footer d-flex align-items-center" >
-                                <a th:href="@{|/post/${post.id}|}" class="mr-auto btn btn-outline-primary">
+                                <a th:href="@{|/post/${post.id}|}" class="mr-auto btn btn-outline-primary" style="border: none;">
                                     <span th:text="더보기">더보기</span>
                                 </a>
 
                                 <div class="mx-2 like-div" th:likecheck="${post.isLike(#authentication.principal)}">
                                     <div th:id="|dislikeDiv${post.id}|">
-                                        <a href="javascript:void(0);" style="cursor:pointer" class="post-like btn btn-outline-danger" th:id="|dislike${post.id}|">
+                                        <a href="javascript:void(0);" style="cursor:pointer; border: none;" class="post-like btn btn-outline-danger" th:id="|dislike${post.id}|">
                                              <i class="fa fa-heart"></i> <span class="like-count" th:id="|dislikeCount${post.id}|" th:text="${post.likeCount}"></span>
                                         </a>
                                     </div>
                                     <div th:id="|likeDiv${post.id}|">
-                                        <a href="javascript:void(0);" style="cursor:pointer" class="post-dislike btn btn-outline-danger" th:id="|like${post.id}|">
+                                        <a href="javascript:void(0);" style="cursor:pointer; border: none;" class="post-dislike btn btn-outline-danger" th:id="|like${post.id}|">
                                             <i class="fa fa-heart-o"></i> <span class="like-count" th:id="|likeCount${post.id}|" th:text="${post.likeCount}"></span>
                                         </a>
                                     </div>

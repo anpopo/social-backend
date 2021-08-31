@@ -16,11 +16,11 @@
                             <h4 class="mx-3" th:text="|@${post.account.nickname}|"></h4>
                         </a>
                         <small class="date-weekday-time text-muted ml-auto" th:text="${post.modifiedAt}">3 days ago</small>
-                        <form th:action="@{|/post/${post.id}/delete|}" method="post" class="mx-3" th:if="${post.isWriter(#authentication.principal)}">
-                            <button class="btn btn-outline-danger" type="submit">
-                                삭제
-                            </button>
-                        </form>
+                        <div class="mx-3" th:if="${post.isWriter(#authentication.principal)}">
+                            <a class="btn btn-warning" th:href="@{|/post/${post.id}/edit|}">
+                                게시글 수정
+                            </a>
+                        </div>
                     </div>
                     <div class="card-body row">
                         <div class="col-md-8 border-right">
@@ -79,20 +79,51 @@
                             <hr />
                             <div id="commentDiv" class="py-3">
                                 <div>
-                                    <form class="needs-validation" th:action="@{/post/comment}" method="post" novalidate>
+                                    <form class="needs-validation" th:action="@{/post/comment}" method="post" action="#"
+                                          th:object="${commentForm}"novalidate>
                                         <div class="form-group">
-                                            <textarea id="comment" class="form-control" rows="4"
-                                                      placeholder="댓글을 입력해 주세요." aria-describedby="commentHelp" maxlength="140"></textarea>
+                                            <textarea id="comment" class="form-control" rows="4" th:field="*{comment}"
+                                                      placeholder="댓글을 입력해 주세요." aria-describedby="commentHelp" maxlength="140" required></textarea>
                                             <small id="commentHelp" class="form-text text-muted mt-2">
-                                                건전한 인터넷 댓글 문화를 만들어 주세요.
+                                                건전한 인터넷 댓글 문화를 만들어 주세요. <br>
+                                                140자 제한이 있습니다.
                                             </small>
+                                            <small class="form-text text-danger" th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}">
+                                                140자 이내로 작성해 주세요.
+                                            </small>
+                                            <input type="hidden" th:field="*{postId}" th:value="${post.id}">
                                         </div>
                                         <div class="form-group">
-                                            <button class="btn btn-outline-success btn-block mt-2" type="submit" aria-describedby="submitHelp">
+                                            <button class="btn btn-success btn-block mt-2" style="border: none;" type="submit" aria-describedby="submitHelp">
                                                 댓글 작성
                                             </button>
                                         </div>
                                     </form>
+                                </div>
+                                <div>
+                                    <div>
+                                        <div>
+                                            <div>
+                                                <div th:if="${#lists.isEmpty(commentList)}">
+                                                    <p>첫 댓글을 등록해 보세요!</p>
+                                                </div>
+                                                <div th:each="comment: ${commentList}">
+                                                    <div class="d-flex" style="width: 100%;">
+                                                        <div>
+                                                            <pre class="mt-1 mb-1" th:text="${comment.comment}"></pre>
+                                                        </div>
+                                                        <div class="ml-auto">
+                                                            <a th:href="@{|/profile/@${comment.account.nickname}|}" role="dialog" >
+                                                                <small class="mx-1" th:text="|@${comment.account.nickname}|"></small>
+                                                            </a>
+                                                            <small class="mt-1 mb-1 fromNow" th:text="${comment.modifiedAt}"></small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

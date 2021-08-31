@@ -2,7 +2,6 @@ package com.anpopo.social.module.post;
 
 import com.anpopo.social.module.account.UserAccount;
 import com.anpopo.social.module.account.domain.Account;
-import com.anpopo.social.module.comment.Comment;
 import com.anpopo.social.module.interest.Interest;
 import com.anpopo.social.module.tag.Tag;
 import lombok.EqualsAndHashCode;
@@ -29,6 +28,7 @@ public class Post {
     private String context;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
     private Account account;
 
     private LocalDateTime postedAt;
@@ -36,7 +36,7 @@ public class Post {
     private LocalDateTime modifiedAt;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Tag> tags;
+    private Set<Tag> tags = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "interest_id")
@@ -54,10 +54,11 @@ public class Post {
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Account> likeAccount = new HashSet<>();
 
+    @Column(nullable = false, columnDefinition = "default 0")
     private Integer likeCount = 0;
 
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<Comment> comments = new ArrayList<>();
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Comment> comments = new HashSet<>();
 
     public Integer getLikeCount() {
         return this.likeAccount.size();
@@ -92,8 +93,6 @@ public class Post {
         this.postImage1 = postImages[0];
         this.postImage2 = postImages[1];
         this.postImage3 = postImages[2];
-
-
     }
 
     public void addLike(Account account) {

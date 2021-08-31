@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class PostService {
 
-    private final AccountRepository accountRepository;
+    private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final TagRepository tagRepository;
     private final InterestRepository interestRepository;
@@ -80,5 +80,16 @@ public class PostService {
 
         post.minusLike(account);
         return post.getLikeCount();
+    }
+
+    public void addCommentToPost(Account account, CommentForm commentForm) {
+
+        Post post = postRepository.findById(commentForm.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 포스트가 없습니다."));
+
+        Comment comment = new Comment(commentForm.getComment(), account, post);
+
+        commentRepository.save(comment);
+
     }
 }
