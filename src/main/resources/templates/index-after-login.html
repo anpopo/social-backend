@@ -21,7 +21,7 @@
                                 <a th:href="@{|/profile/@${post.account.nickname}|}" role="dialog" >
                                     <h4 class="mx-3" th:text="|@${post.account.nickname}|"></h4>
                                 </a>
-                                <small class="date-weekday-time text-muted ml-auto" th:text="${post.modifiedAt}">3 days ago</small>
+                                <small class="calendar text-muted ml-auto" th:text="${post.modifiedAt}">3 days ago</small>
                             </div>
 
                             <div class="card-body">

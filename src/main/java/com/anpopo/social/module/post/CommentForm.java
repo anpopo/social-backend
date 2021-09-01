@@ -14,6 +14,6 @@ public class CommentForm {
 
     private Long postId;
 
-    @Length(max = 198, message = "140자 이내로 작성해 주세요.")
+    @Length(max = 1100, message = "1000자 이내로 작성해 주세요.")
     private String comment;
 }

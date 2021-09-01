@@ -6,7 +6,7 @@
     <div class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card">
+                <div class="card" style="max-height: 100%;">
                     <div class="card-header d-flex align-items-center">
                         <svg th:if="${#strings.isEmpty(post?.account?.profileImage)}" class="rounded border bg-light"
                              th:data-jdenticon-value="${post.account.nickname}" width="30" height="30"></svg>
@@ -77,19 +77,19 @@
                                 </div>
                             </div>
                             <hr />
-                            <div id="commentDiv" class="py-3">
+                            <div class="py-3">
                                 <div>
                                     <form class="needs-validation" th:action="@{/post/comment}" method="post" action="#"
                                           th:object="${commentForm}"novalidate>
                                         <div class="form-group">
                                             <textarea id="comment" class="form-control" rows="4" th:field="*{comment}"
-                                                      placeholder="댓글을 입력해 주세요." aria-describedby="commentHelp" maxlength="140" required></textarea>
+                                                      placeholder="댓글을 입력해 주세요." aria-describedby="commentHelp" maxlength="1000" required></textarea>
                                             <small id="commentHelp" class="form-text text-muted mt-2">
                                                 건전한 인터넷 댓글 문화를 만들어 주세요. <br>
-                                                140자 제한이 있습니다.
+                                                1000자 제한이 있습니다.
                                             </small>
                                             <small class="form-text text-danger" th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}">
-                                                140자 이내로 작성해 주세요.
+                                                1000자 이내로 작성해 주세요.
                                             </small>
                                             <input type="hidden" th:field="*{postId}" th:value="${post.id}">
                                         </div>
@@ -100,28 +100,37 @@
                                         </div>
                                     </form>
                                 </div>
-                                <div>
-                                    <div>
-                                        <div>
+                            </div>
+                            <div style="overflow: auto; max-height: 75%;">
+                                <div style="overflow: auto;">
+                                    <div th:if="${#lists.isEmpty(commentList)}">
+                                        <p>첫 댓글을 등록해 보세요!</p>
+                                    </div>
+                                    <div th:each="comment: ${commentList}" class="my-2">
+                                        <div class="d-flex" style="width: 100%;" th:id="${comment.id}">
                                             <div>
-                                                <div th:if="${#lists.isEmpty(commentList)}">
-                                                    <p>첫 댓글을 등록해 보세요!</p>
+                                                <a th:href="@{|/profile/@${comment.account.nickname}|}" role="dialog" >
+                                                    <svg th:if="${#strings.isEmpty(comment?.account?.profileImage)}" class="rounded-circle border bg-light"
+                                                         th:data-jdenticon-value="${comment.account.nickname}" width="25" height="25"></svg>
+                                                    <img th:if="${!#strings.isEmpty(comment?.account?.profileImage)}" class="rounded-circle border"
+                                                         th:src="${comment.account.profileImage}" width="25" height="25" />
+                                                </a>
+                                            </div>
+                                            <div class="d-flex flex-column">
+                                                <div style="width: 100%;">
+                                                    <a th:href="@{|/profile/@${comment.account.nickname}|}" role="dialog" >
+                                                        <strong>
+                                                            <p class="mx-1" th:text="|${comment.account.nickname}|" style="display: inline;"></p>
+                                                        </strong>
+                                                    </a>
+                                                    <p style="display: inline;" class="mt-1 mb-1" th:text="${comment.comment}"></p>
                                                 </div>
-                                                <div th:each="comment: ${commentList}">
-                                                    <div class="d-flex" style="width: 100%;">
-                                                        <div>
-                                                            <pre class="mt-1 mb-1" th:text="${comment.comment}"></pre>
-                                                        </div>
-                                                        <div class="ml-auto">
-                                                            <a th:href="@{|/profile/@${comment.account.nickname}|}" role="dialog" >
-                                                                <small class="mx-1" th:text="|@${comment.account.nickname}|"></small>
-                                                            </a>
-                                                            <small class="mt-1 mb-1 fromNow" th:text="${comment.modifiedAt}"></small>
-                                                        </div>
-                                                    </div>
+                                                <div>
+                                                    <small class="mt-1 mb-1 calendar" th:text="${comment.modifiedAt}"></small>&nbsp;
+                                                    <small class="mt-1 mb-1 reply" style="cursor: pointer;"
+                                                           th:commentId="${comment.id}" th:postId="${post.id}">답글 달기</small>
                                                 </div>
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -131,6 +140,25 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="my-3" aria-hidden="true" id="rereply">
+        <form class="needs-validation" th:action="@{/post/comment/reply}" method="post" action="#" novalidate>
+            <div class="form-group" >
+                <textarea  class="form-control" rows="4" name="commentReply"
+                          placeholder="1000자 이내로 답글 작성" aria-describedby="commentHelp" maxlength="1000" required></textarea>
+<!--                <input type="hidden" th:field="*{postId}" th:value="${post.id}">-->
+<!--                <input type="hidden" th:field="*{postId}" th:value="${post.id}">-->
+            </div>
+            <div id="textareaReply">
+
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success btn-block mt-2" style="border: none;" type="submit" aria-describedby="submitHelp">
+                    답글 작성
+                </button>
+            </div>
+        </form>
     </div>
 
 
@@ -249,6 +277,33 @@
                     }, false)
                 })
             }, false)
+        })
+    </script>
+    <script type="application/javascript">
+        $(function () {
+            $('.reply').click(handleReply);
+
+            const reply = document.querySelector('#rereply');
+
+            function handleReply (e) {
+                const text = $('#textareaReply');
+                text.empty();
+
+                const input1 = document.createElement('input');
+                input1.setAttribute('type', 'hidden');
+                input1.setAttribute('name', 'postId');
+                input1.setAttribute('value', $(this).attr('postId'));
+
+                const input2 = document.createElement('input');
+                input2.setAttribute('type', 'hidden');
+                input2.setAttribute('name', 'commentId');
+                input2.setAttribute('value', $(this).attr('commentId'));
+
+                text.append(input1);
+                text.append(input2);
+
+                $(this).parent().parent().parent().parent().append(reply);
+            }
         })
     </script>
 </body>
