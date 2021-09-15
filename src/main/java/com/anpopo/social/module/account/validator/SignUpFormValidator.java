@@ -1,7 +1,7 @@
 package com.anpopo.social.module.account.validator;
 
-import com.anpopo.social.module.account.repository.AccountRepository;
 import com.anpopo.social.module.account.form.SignUpForm;
+import com.anpopo.social.module.account.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;

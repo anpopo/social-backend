@@ -5,12 +5,14 @@
 <!-- Head Fragment -->
 <head th:fragment="head-fragment">
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>The Social</title>
   <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css" />
   <link rel="stylesheet" href="/node_modules/cropper/dist/cropper.min.css">
   <link rel="stylesheet" href="/node_modules/@yaireo/tagify/dist/tagify.css"/>
   <link rel="stylesheet" href="/node_modules/bootstrap-icons/font/bootstrap-icons.css"/>
+  <link rel="stylesheet" href="//malihu.github.io/custom-scrollbar/jquery.mCustomScrollbar.min.css"/>
 
   <style>
 
@@ -62,7 +64,7 @@
 <!-- main navigation bar fragment -->
 <nav class="navbar navbar-expand-sm navbar-light" style="background-color: #e3f2fd;" th:fragment="nav-fragment">
   <a class="navbar-brand" href="/" th:href="@{/}">
-    <img src="/images/logo_sm.png" width="30" height="30">
+    <img src="/images/logo_sm.png" width="30" height="30" />
   </a>
 
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

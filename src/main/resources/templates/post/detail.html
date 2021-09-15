@@ -57,6 +57,20 @@
                                 </div>
                             </div>
                             <hr />
+                            <div class="mt-3">
+                                <h5>
+                                    <span th:each="interest: ${post.interest}" class="font-weight-light text-monospace badge badge-primary mr-3">
+                                        <a th:href="@{'#'}" class="text-decoration-none text-white">
+                                            <i class="fa fa-thumbs-up"></i> <span th:text="${interest.interest}">interest</span>
+                                        </a>
+                                    </span>
+                                    <span th:each="tag: ${post.tags}" class="font-weight-light text-monospace badge badge-pill badge-info mr-3">
+                                        <a th:href="@{'#'}" class="text-decoration-none text-white">
+                                            <i class="fa fa-tag"></i> <span th:text="${tag.title}">Tag</span>
+                                        </a>
+                                    </span>
+                                </h5>
+                            </div>
                             <div class="mt-3 bg-light">
                                 <div th:if="${!#strings.isEmpty(post?.context)}" class="px-3">
                                     <pre class="text-justify" th:text="${post.context}" style="font-size: 1.125rem;"></pre>
@@ -101,13 +115,13 @@
                                     </form>
                                 </div>
                             </div>
-                            <div style="overflow: auto; max-height: 75%;">
-                                <div style="overflow: auto;">
+                            <div style=" max-height: 78%;" class="mCustomScrollbar" data-mcs-theme="dark-2">
+                                <div >
                                     <div th:if="${#lists.isEmpty(commentList)}">
                                         <p>첫 댓글을 등록해 보세요!</p>
                                     </div>
                                     <div th:each="comment: ${commentList}" class="my-2">
-                                        <div class="d-flex" style="width: 100%;" th:id="${comment.id}">
+                                        <div class="d-flex " style="width: 100%;" th:id="${comment.id}">
                                             <div>
                                                 <a th:href="@{|/profile/@${comment.account.nickname}|}" role="dialog" >
                                                     <svg th:if="${#strings.isEmpty(comment?.account?.profileImage)}" class="rounded-circle border bg-light"
@@ -116,17 +130,23 @@
                                                          th:src="${comment.account.profileImage}" width="25" height="25" />
                                                 </a>
                                             </div>
-                                            <div class="d-flex flex-column">
-                                                <div style="width: 100%;">
+                                            <div class="d-flex flex-column" style="max-width: calc(100% - 40px);">
+                                                <div>
                                                     <a th:href="@{|/profile/@${comment.account.nickname}|}" role="dialog" >
-                                                        <strong>
-                                                            <p class="mx-1" th:text="|${comment.account.nickname}|" style="display: inline;"></p>
-                                                        </strong>
-                                                    </a>
-                                                    <p style="display: inline;" class="mt-1 mb-1" th:text="${comment.comment}"></p>
+                                                        <small class="mx-1" th:text="|${comment.account.nickname}|" style="display: inline; font-size: 0.75rem;"></small>
+                                                    </a>&middot;
+                                                    <small style="font-size: 0.75rem" class="mt-1 mb-1 fromNow" th:text="${comment.modifiedAt}"></small>&nbsp;
                                                 </div>
                                                 <div>
-                                                    <small class="mt-1 mb-1 calendar" th:text="${comment.modifiedAt}"></small>&nbsp;
+                                                    <small style="font-size: 1rem" class="mt-1 mb-1" th:text="${comment.comment}"></small>
+                                                </div>
+                                                <div>
+                                                    <a th:href="|#|" role="dialog">
+                                                        <small class="mt-1 mb-1 getReply" style="cursor: pointer;"
+                                                               th:text="|답글 ${comment.numberOfReply}개|"
+                                                               th:commentId="${comment.id}" th:postId="${post.id}"
+                                                               th:numberOfReply="${comment.numberOfReply}">보기</small>
+                                                    </a>
                                                     <small class="mt-1 mb-1 reply" style="cursor: pointer;"
                                                            th:commentId="${comment.id}" th:postId="${post.id}">답글 달기</small>
                                                 </div>
@@ -142,19 +162,16 @@
         </div>
     </div>
 
-    <div class="my-3" aria-hidden="true" id="rereply">
+    <div class="my-3" aria-hidden="true" id="rereply" style="display: none;">
         <form class="needs-validation" th:action="@{/post/comment/reply}" method="post" action="#" novalidate>
             <div class="form-group" >
                 <textarea  class="form-control" rows="4" name="commentReply"
                           placeholder="1000자 이내로 답글 작성" aria-describedby="commentHelp" maxlength="1000" required></textarea>
-<!--                <input type="hidden" th:field="*{postId}" th:value="${post.id}">-->
-<!--                <input type="hidden" th:field="*{postId}" th:value="${post.id}">-->
             </div>
             <div id="textareaReply">
-
             </div>
             <div class="form-group">
-                <button class="btn btn-success btn-block mt-2" style="border: none;" type="submit" aria-describedby="submitHelp">
+                <button class="btn btn-danger btn-block mt-2" style="border: none;" type="submit" aria-describedby="submitHelp">
                     답글 작성
                 </button>
             </div>
@@ -281,7 +298,13 @@
     </script>
     <script type="application/javascript">
         $(function () {
+
+            $('.mCustomScrollbar').mCustomScrollbar("scrollTo","bottom",{
+                scrollEasing:"linear"
+            });
+
             $('.reply').click(handleReply);
+            $('.getReply').click(handleGetReply);
 
             const reply = document.querySelector('#rereply');
 
@@ -303,8 +326,37 @@
                 text.append(input2);
 
                 $(this).parent().parent().parent().parent().append(reply);
+
+                reply.style.cssText = 'display: block;';
+            }
+
+
+            function handleGetReply (e) {
+                const target = e.target;
+                if(target.getAttribute('numberofreply') !== 0) {
+                    $.ajax({
+                        dataType: "json",
+                        autocomplete: {
+                            enabled: true,
+                            rightKey: true,
+                        },
+                        contentType: "application/json; charset=utf-8",
+                        method: "GET",
+                        url: "/post/comment/" + target.getAttribute('commentid'),
+                        data: JSON.stringify({'postId': target.getAttribute('postid')}),
+                        success: function(data) {
+                            console.log(data);
+                        },
+                        fail: function () {
+                            console.log('fail');
+                        }
+                    });
+                } else {
+                    $(this).parent().parent().parent().parent().parent().append(reply);
+                }
             }
         })
     </script>
+    <script src="//malihu.github.io/custom-scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
 </body>
 </html>

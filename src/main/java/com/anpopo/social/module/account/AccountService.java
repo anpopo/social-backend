@@ -1,16 +1,16 @@
 package com.anpopo.social.module.account;
 
+import com.anpopo.social.infra.config.AppProperties;
+import com.anpopo.social.infra.mail.EmailMessage;
+import com.anpopo.social.infra.mail.EmailService;
 import com.anpopo.social.module.account.domain.Account;
+import com.anpopo.social.module.account.domain.Follow;
 import com.anpopo.social.module.account.event.FollowRequestEvent;
 import com.anpopo.social.module.account.event.FollowResponseEvent;
 import com.anpopo.social.module.account.form.SignUpForm;
 import com.anpopo.social.module.account.repository.AccountRepository;
-import com.anpopo.social.module.account.domain.Follow;
 import com.anpopo.social.module.account.repository.FollowRepository;
-import com.anpopo.social.infra.config.AppProperties;
 import com.anpopo.social.module.interest.Interest;
-import com.anpopo.social.infra.mail.EmailMessage;
-import com.anpopo.social.infra.mail.EmailService;
 import com.anpopo.social.module.settings.form.NotificationForm;
 import com.anpopo.social.module.settings.form.ProfileForm;
 import lombok.RequiredArgsConstructor;

@@ -1,12 +1,10 @@
 package com.anpopo.social.module.account.repository;
 
 import com.anpopo.social.module.account.domain.Account;
-import com.anpopo.social.module.interest.Interest;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Transactional(readOnly = true)

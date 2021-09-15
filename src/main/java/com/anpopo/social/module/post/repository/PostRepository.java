@@ -1,13 +1,13 @@
-package com.anpopo.social.module.post;
+package com.anpopo.social.module.post.repository;
 
 import com.anpopo.social.module.account.domain.Account;
+import com.anpopo.social.module.post.Post;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Transactional(readOnly = true)
 public interface PostRepository extends JpaRepository<Post, Long> {

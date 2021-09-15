@@ -1,12 +1,8 @@
 package com.anpopo.social.module.post;
 
 import com.anpopo.social.module.account.domain.Account;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.jdo.annotations.Join;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,7 +21,7 @@ public class Comment {
     @Column(length = 400, nullable = false)
     private String comment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id")
     private Account account;
 
@@ -33,6 +29,7 @@ public class Comment {
     @JoinColumn(name = "post_id")
     private Post post;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Comment parent;
@@ -43,6 +40,7 @@ public class Comment {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
+    private int numberOfReply = 0;
     private int numberOfReport = 0;
 
     public Comment(String comment, Account account, Post post) {
@@ -53,5 +51,11 @@ public class Comment {
 
         this.createdAt = LocalDateTime.now();
         this.modifiedAt = LocalDateTime.now();
+    }
+
+    public void setCommentFamily(Comment child) {
+        this.numberOfReply++;
+        this.children.add(child);
+        child.setParent(this);
     }
 }

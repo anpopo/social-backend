@@ -10,9 +10,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -54,7 +52,7 @@ public class Post {
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Account> likeAccount = new HashSet<>();
 
-    @Column(nullable = false, columnDefinition = "default 0")
+    @Column(nullable = false)
     private Integer likeCount = 0;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

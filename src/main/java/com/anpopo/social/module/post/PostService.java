@@ -1,12 +1,11 @@
 package com.anpopo.social.module.post;
 
-import com.anpopo.social.module.account.repository.AccountRepository;
 import com.anpopo.social.module.account.domain.Account;
 import com.anpopo.social.module.interest.Interest;
 import com.anpopo.social.module.interest.InterestRepository;
 import com.anpopo.social.module.post.event.FollowingInterestPostEvent;
-import com.anpopo.social.module.post.event.FollowingPostEvent;
-import com.anpopo.social.module.post.event.InterestPostEvent;
+import com.anpopo.social.module.post.repository.CommentRepository;
+import com.anpopo.social.module.post.repository.PostRepository;
 import com.anpopo.social.module.tag.Tag;
 import com.anpopo.social.module.tag.TagRepository;
 import lombok.RequiredArgsConstructor;
@@ -88,6 +87,24 @@ public class PostService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 포스트가 없습니다."));
 
         Comment comment = new Comment(commentForm.getComment(), account, post);
+
+        commentRepository.save(comment);
+
+    }
+
+    public void addCommentReplyToComment(Account account, Long postId, Long commentId, String commentReply) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 포스트가 없습니다."));
+
+
+        Comment findComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 없습니다."));
+
+
+        Comment comment = new Comment(commentReply, account, post);
+
+        findComment.setCommentFamily(comment);
 
         commentRepository.save(comment);
 

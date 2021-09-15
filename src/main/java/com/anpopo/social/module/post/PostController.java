@@ -3,6 +3,8 @@ package com.anpopo.social.module.post;
 import com.anpopo.social.module.account.CurrentUser;
 import com.anpopo.social.module.account.domain.Account;
 import com.anpopo.social.module.interest.InterestRepository;
+import com.anpopo.social.module.post.repository.CommentRepository;
+import com.anpopo.social.module.post.repository.PostRepository;
 import com.anpopo.social.module.tag.Tag;
 import com.anpopo.social.module.tag.TagRepository;
 import com.anpopo.social.module.tag.TagService;
@@ -18,7 +20,8 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -76,7 +79,7 @@ public class PostController {
 
         model.addAttribute(account);
         model.addAttribute(post);
-        model.addAttribute("commentList", commentRepository.findCommentWithAccountByPostOrderByModifiedAtDesc(post));
+        model.addAttribute("commentList", commentRepository.findParentComments(post));
         model.addAttribute(CommentForm.builder().postId(id).build());
 
         return "post/detail";
@@ -217,5 +220,19 @@ public class PostController {
         postService.addCommentToPost(account, commentForm);
 
         return "redirect:/post/" + commentForm.getPostId();
+    }
+
+    @PostMapping("/comment/reply")
+    public String addCommentReply(@CurrentUser Account account,
+                                  String commentReply,
+                                  Long postId, Long commentId, Model model) {
+        String redirectUri = "redirect:/post/" + postId;
+        if(commentReply.length() > 1100) {
+            return redirectUri;
+        }
+
+        postService.addCommentReplyToComment(account, postId, commentId, commentReply);
+
+        return redirectUri;
     }
 }

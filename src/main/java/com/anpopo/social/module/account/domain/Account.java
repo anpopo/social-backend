@@ -3,7 +3,9 @@ package com.anpopo.social.module.account.domain;
 import com.anpopo.social.module.interest.Interest;
 import com.anpopo.social.module.settings.form.NotificationForm;
 import com.anpopo.social.module.settings.form.ProfileForm;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -11,7 +13,9 @@ import javax.persistence.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @NamedEntityGraph(name = "Account.withInterest", attributeNodes = {
         @NamedAttributeNode("interests")

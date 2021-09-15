@@ -1,14 +1,14 @@
 package com.anpopo.social.module.account;
 
 import com.anpopo.social.module.account.domain.Account;
+import com.anpopo.social.module.account.domain.Follow;
 import com.anpopo.social.module.account.form.AccountPostForm;
 import com.anpopo.social.module.account.form.SignUpForm;
 import com.anpopo.social.module.account.repository.AccountRepository;
-import com.anpopo.social.module.account.validator.SignUpFormValidator;
-import com.anpopo.social.module.account.domain.Follow;
 import com.anpopo.social.module.account.repository.FollowRepository;
+import com.anpopo.social.module.account.validator.SignUpFormValidator;
 import com.anpopo.social.module.post.Post;
-import com.anpopo.social.module.post.PostRepository;
+import com.anpopo.social.module.post.repository.PostRepository;
 import com.anpopo.social.module.settings.form.FollowForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

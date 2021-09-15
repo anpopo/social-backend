@@ -1,9 +1,9 @@
 package com.anpopo.social.module.settings;
 
-import com.anpopo.social.module.account.repository.AccountRepository;
 import com.anpopo.social.module.account.AccountService;
 import com.anpopo.social.module.account.CurrentUser;
 import com.anpopo.social.module.account.domain.Account;
+import com.anpopo.social.module.account.repository.AccountRepository;
 import com.anpopo.social.module.interest.Interest;
 import com.anpopo.social.module.interest.InterestRepository;
 import com.anpopo.social.module.settings.form.*;

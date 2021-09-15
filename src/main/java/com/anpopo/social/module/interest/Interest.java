@@ -1,6 +1,9 @@
 package com.anpopo.social.module.interest;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -20,10 +23,10 @@ public class Interest {
     @Column(nullable = false, unique = true)
     private String interest;
 
-    @Column(nullable = false, columnDefinition = "default 0")
+    @Column(nullable = false)
     private Integer numberOfAccount = 0;
 
-    @Column(nullable = false, columnDefinition = "default 0")
+    @Column(nullable = false)
     private Integer numberOfPost = 0;
 
     private boolean deleted = false;

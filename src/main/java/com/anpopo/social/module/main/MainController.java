@@ -1,22 +1,19 @@
 package com.anpopo.social.module.main;
 
-import com.anpopo.social.module.account.domain.Account;
 import com.anpopo.social.module.account.CurrentUser;
+import com.anpopo.social.module.account.domain.Account;
 import com.anpopo.social.module.account.domain.Follow;
 import com.anpopo.social.module.account.repository.AccountRepository;
 import com.anpopo.social.module.account.repository.FollowRepository;
-import com.anpopo.social.module.notification.NotificationRepository;
 import com.anpopo.social.module.post.Post;
-import com.anpopo.social.module.post.PostRepository;
+import com.anpopo.social.module.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Controller
